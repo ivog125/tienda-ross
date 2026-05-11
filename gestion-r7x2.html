@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin – Tienda Ross</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --verde: #3a5a40;
+      --verde-claro: #a3b18a;
+      --verde-muy-claro: #f0f4ed;
+      --crema: #faf8f3;
+      --crema-oscuro: #ede8dc;
+      --texto: #2c2c2c;
+      --texto-suave: #7a7a6e;
+      --blanco: #ffffff;
+      --rojo: #c0392b;
+      --rojo-claro: #fdf2f2;
+      --radio: 10px;
+      --sombra: 0 2px 16px rgba(0,0,0,0.08);
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--crema);
+      color: var(--texto);
+      min-height: 100vh;
+    }
+
+    /* ── APP ── */
+    #appScreen { display: block; }
+
+    header {
+      background: var(--verde);
+      color: var(--blanco);
+      padding: 0 24px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    }
+
+    .header-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .header-acciones {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-header {
+      background: rgba(255,255,255,0.15);
+      color: var(--blanco);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      padding: 7px 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-header:hover { background: rgba(255,255,255,0.25); }
+    .btn-header.accent { background: var(--verde-claro); color: var(--verde); border-color: transparent; font-weight: 500; }
+    .btn-header.accent:hover { background: var(--blanco); }
+
+    /* ── CONTAINER ── */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 28px 24px 80px;
+    }
+
+    /* ── STATS ── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: var(--blanco);
+      border-radius: var(--radio);
+      padding: 18px 20px;
+      box-shadow: var(--sombra);
+      border-left: 3px solid var(--verde);
+    }
+
+    .stat-valor {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 30px;
+      color: var(--verde);
+      font-weight: 600;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .stat-label { font-size: 12px; color: var(--texto-suave); }
+
+    /* ── BARRA ACCIONES ── */
+    .barra {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .barra-buscar {
+      flex: 1;
+      min-width: 200px;
+      position: relative;
+    }
+
+    .barra-buscar input {
+      width: 100%;
+      padding: 9px 14px 9px 36px;
+      border: 1.5px solid var(--crema-oscuro);
+      border-radius: 30px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      outline: none;
+      background: var(--blanco);
+      transition: border-color 0.2s;
+    }
+
+    .barra-buscar input:focus { border-color: var(--verde); }
+
+    .barra-buscar svg {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--texto-suave);
+    }
+
+    .btn-add {
+      background: var(--verde);
+      color: var(--blanco);
+      border: none;
+      border-radius: 8px;
+      padding: 9px 18px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .btn-add:hover { background: #2e4a34; }
+
+    /* ── TABLA ── */
+    .tabla-wrap {
+      background: var(--blanco);
+      border-radius: var(--radio);
+      box-shadow: var(--sombra);
+      overflow: hidden;
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+
+    thead { background: var(--verde-muy-claro); }
+
+    th {
+      padding: 13px 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--verde);
+    }
+
+    td {
+      padding: 14px 16px;
+      font-size: 14px;
+      border-bottom: 1px solid var(--crema-oscuro);
+      vertical-align: middle;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fdfcfa; }
+
+    .td-imagen {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: var(--verde-muy-claro);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .td-imagen img {
+      width: 100%;
+      height: 100%;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+
+    .nombre-col { font-weight: 500; }
+    .desc-col { color: var(--texto-suave); font-size: 12.5px; max-width: 200px; }
+    .precio-col { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--verde); font-weight: 600; }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 30px;
+      font-size: 11px;
+      font-weight: 500;
+      background: var(--verde-muy-claro);
+      color: var(--verde);
+    }
+
+    .acciones { display: flex; gap: 8px; }
+
+    .btn-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 1.5px solid var(--crema-oscuro);
+      background: var(--blanco);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .btn-icon:hover { background: var(--verde); color: var(--blanco); border-color: var(--verde); }
+    .btn-icon.eliminar:hover { background: var(--rojo); border-color: var(--rojo); }
+
+    .tabla-vacia { text-align: center; padding: 48px; color: var(--texto-suave); }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s;
+    }
+
+    .modal-overlay.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal {
+      background: var(--blanco);
+      border-radius: 14px;
+      padding: 28px;
+      width: 100%;
+      max-width: 520px;
+      max-height: 90vh;
+      overflow-y: auto;
+      transform: scale(0.95);
+      transition: transform 0.25s;
+    }
+
+    .modal-overlay.visible .modal { transform: scale(1); }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .modal-header h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      color: var(--verde);
+    }
+
+    .modal-cerrar {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: var(--texto-suave);
+      padding: 4px;
+    }
+
+    .form-group { margin-bottom: 16px; }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--texto-suave);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    input[type="text"], input[type="number"], textarea, select {
+      width: 100%;
+      padding: 10px 13px;
+      border: 1.5px solid var(--crema-oscuro);
+      border-radius: var(--radio);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      outline: none;
+      background: var(--blanco);
+      transition: border-color 0.2s;
+    }
+
+    input:focus, textarea:focus, select:focus { border-color: var(--verde); }
+
+    textarea { resize: vertical; min-height: 80px; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    .img-preview {
+      width: 100%;
+      height: 140px;
+      border-radius: var(--radio);
+      background: var(--verde-muy-claro);
+      border: 2px dashed var(--verde-claro);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 6px;
+      color: var(--texto-suave);
+      font-size: 13px;
+      margin-top: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .img-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: calc(var(--radio) - 2px);
+    }
+
+    .img-preview .upload-icon { font-size: 28px; }
+
+    .upload-label {
+      cursor: pointer;
+      color: var(--verde);
+      font-weight: 500;
+      text-decoration: underline;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--crema-oscuro);
+    }
+
+    .btn-cancelar {
+      background: none;
+      border: 1.5px solid var(--crema-oscuro);
+      border-radius: var(--radio);
+      padding: 10px 18px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      cursor: pointer;
+      color: var(--texto-suave);
+      transition: all 0.2s;
+    }
+
+    .btn-cancelar:hover { border-color: var(--texto-suave); color: var(--texto); }
+
+    .btn-guardar {
+      background: var(--verde);
+      color: var(--blanco);
+      border: none;
+      border-radius: var(--radio);
+      padding: 10px 22px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-guardar:hover { background: #2e4a34; }
+    .btn-guardar:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* ── CONFIRM ── */
+    .confirm-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+
+    .confirm-overlay.visible { opacity: 1; pointer-events: all; }
+
+    .confirm-box {
+      background: var(--blanco);
+      border-radius: 14px;
+      padding: 28px;
+      max-width: 360px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .confirm-box .emoji { font-size: 36px; margin-bottom: 12px; }
+    .confirm-box h3 { font-size: 17px; margin-bottom: 8px; }
+    .confirm-box p { font-size: 13px; color: var(--texto-suave); margin-bottom: 20px; }
+
+    .confirm-btns { display: flex; gap: 10px; justify-content: center; }
+
+    .btn-confirmar-eliminar {
+      background: var(--rojo);
+      color: var(--blanco);
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-confirmar-eliminar:hover { background: #a93226; }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--verde);
+      color: var(--blanco);
+      padding: 12px 20px;
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      transition: transform 0.3s;
+      z-index: 300;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .toast.visible { transform: translateX(-50%) translateY(0); }
+    .toast.error { background: var(--rojo); }
+
+    /* ── LOADING ── */
+    .spinner {
+      width: 20px; height: 20px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: var(--blanco);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── CATEGORÍAS ── */
+    .card-categorias {
+      background: var(--blanco);
+      border-radius: var(--radio);
+      box-shadow: var(--sombra);
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .cats-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 18px;
+      background: var(--verde-muy-claro);
+      border-bottom: 1px solid var(--crema-oscuro);
+    }
+
+    .cats-cerrar {
+      background: none; border: none; cursor: pointer;
+      color: var(--texto-suave); font-size: 16px;
+    }
+
+    .cat-fila {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--crema-oscuro);
+    }
+
+    .cat-fila:last-child { border-bottom: none; }
+
+    .cat-nombre {
+      flex: 1;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .cat-count {
+      font-size: 12px;
+      color: var(--texto-suave);
+      min-width: 80px;
+    }
+
+    .cat-input {
+      flex: 1;
+      padding: 7px 10px;
+      border: 1.5px solid var(--verde-claro);
+      border-radius: 7px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .cat-input:focus { border-color: var(--verde); }
+
+    .btn-cat-renombrar {
+      background: var(--verde);
+      color: var(--blanco);
+      border: none;
+      border-radius: 7px;
+      padding: 7px 14px;
+      font-size: 13px;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-cat-renombrar:hover { background: #2e4a34; }
+    .btn-cat-renombrar:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    @media (max-width: 600px) {
+      .container { padding: 16px 14px 60px; }
+      .form-row { grid-template-columns: 1fr; }
+      th:nth-child(3), td:nth-child(3),
+      th:nth-child(4), td:nth-child(4) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- APP -->
+  <div id="appScreen">
+    <header>
+      <div class="header-logo">🌿 Tienda Ross — Admin</div>
+      <div class="header-acciones">
+        <a href="tienda-ross.html" target="_blank">
+          <button class="btn-header">Ver tienda →</button>
+        </a>
+        <button class="btn-header accent" id="nuevoProductoBtn">+ Producto</button>
+        <button class="btn-header" id="gestionCatsBtn">🏷️ Categorías</button>
+      </div>
+    </header>
+
+    <div class="container">
+      <!-- Stats -->
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-valor" id="statTotal">–</div>
+          <div class="stat-label">Productos totales</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-valor" id="statCats">–</div>
+          <div class="stat-label">Categorías</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-valor" id="statConFoto">–</div>
+          <div class="stat-label">Con imagen</div>
+        </div>
+      </div>
+
+      <!-- Categorías -->
+      <div class="card-categorias" id="cardCategorias" style="display:none">
+        <div class="cats-header">
+          <span style="font-size:13px;font-weight:500;color:var(--verde)">🏷️ Gestión de categorías</span>
+          <button class="cats-cerrar" id="catsCerrar">✕</button>
+        </div>
+        <div id="catsList"></div>
+      </div>
+
+      <!-- Barra -->
+      <div class="barra">
+        <div class="barra-buscar">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input type="text" id="adminBuscador" placeholder="Buscar producto…" autocomplete="off" />
+        </div>
+        <button class="btn-add" id="nuevoProductoBtn2">
+          <span>+</span> Agregar producto
+        </button>
+      </div>
+
+      <!-- Tabla -->
+      <div class="tabla-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:60px">Foto</th>
+              <th>Nombre</th>
+              <th>Categoría</th>
+              <th>Descripción</th>
+              <th>Precio</th>
+              <th style="width:90px">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="productosBody">
+            <tr><td colspan="6" class="tabla-vacia">Cargando…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL PRODUCTO -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modalTitulo">Nuevo producto</h2>
+        <button class="modal-cerrar" id="modalCerrar">✕</button>
+      </div>
+
+      <div class="form-group">
+        <label>Nombre del producto *</label>
+        <input type="text" id="formNombre" placeholder="Ej: Spirulina Premium" />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Categoría *</label>
+          <input type="text" id="formCategoria" placeholder="Ej: Prama" list="catsSugeridas" />
+          <datalist id="catsSugeridas"></datalist>
+        </div>
+        <div class="form-group">
+          <label>Precio ($)</label>
+          <input type="number" id="formPrecio" placeholder="0" min="0" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Descripción</label>
+        <textarea id="formDescripcion" placeholder="Breve descripción del producto…"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Imagen del producto</label>
+        <input type="file" id="formImagen" accept="image/*" style="display:none" />
+        <div class="img-preview" id="imgPreview">
+          <span class="upload-icon">📷</span>
+          <label class="upload-label" for="formImagen">Subir imagen</label>
+          <span style="font-size:12px">JPG, PNG, WEBP — máx 2MB</span>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancelar" id="modalCancelar">Cancelar</button>
+        <button class="btn-guardar" id="guardarBtn">
+          Guardar producto
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFIRM ELIMINAR -->
+  <div class="confirm-overlay" id="confirmOverlay">
+    <div class="confirm-box">
+      <div class="emoji">🗑️</div>
+      <h3>¿Eliminar producto?</h3>
+      <p id="confirmNombre">Esta acción no se puede deshacer.</p>
+      <div class="confirm-btns">
+        <button class="btn-cancelar" id="confirmCancelar">Cancelar</button>
+        <button class="btn-confirmar-eliminar" id="confirmEliminar">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+    import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+    const CLOUDINARY_CLOUD = 'dtpx63icx';
+    const CLOUDINARY_PRESET = 'tienda-ross';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyClKPY6RlksLHmZlNP0brfTzB6JPhbXTts",
+      authDomain: "tienda-ross-66e01.firebaseapp.com",
+      projectId: "tienda-ross-66e01",
+      storageBucket: "tienda-ross-66e01.firebasestorage.app",
+      messagingSenderId: "1046212701295",
+      appId: "1:1046212701295:web:8453775da2565e5872b19a"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let productos = [];
+    let editandoId = null;
+    let eliminandoId = null;
+    let imagenNueva = null;
+    let imagenUrlAnterior = null;
+    let busqueda = '';
+
+    cargarProductos();
+
+    // ── Cargar ──
+    async function cargarProductos() {
+      try {
+        const snap = await getDocs(collection(db, 'productos'));
+        productos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        actualizarStats();
+        renderTabla();
+        actualizarCatsSugeridas();
+      } catch (e) {
+        mostrarToast('Error al cargar productos', true);
+        console.error(e);
+      }
+    }
+
+    function actualizarStats() {
+      document.getElementById('statTotal').textContent = productos.length;
+      document.getElementById('statCats').textContent = new Set(productos.map(p => p.category)).size;
+      document.getElementById('statConFoto').textContent = productos.filter(p => p.image).length;
+    }
+
+    function actualizarCatsSugeridas() {
+      const cats = [...new Set(productos.map(p => p.category).filter(Boolean))];
+      document.getElementById('catsSugeridas').innerHTML = cats.map(c => `<option value="${c}">`).join('');
+    }
+
+    // ── Tabla ──
+    function renderTabla() {
+      const tbody = document.getElementById('productosBody');
+      let lista = productos;
+      if (busqueda) lista = lista.filter(p =>
+        p.name?.toLowerCase().includes(busqueda) ||
+        p.category?.toLowerCase().includes(busqueda));
+
+      if (!lista.length) {
+        tbody.innerHTML = `<tr><td colspan="6" class="tabla-vacia">No hay productos${busqueda ? ' con esa búsqueda' : ''}.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = lista.map(p => {
+        const precio = p.price ? `$${Number(p.price).toLocaleString('es-AR')}` : '–';
+        const imgCel = p.image
+          ? `<div class="td-imagen"><img src="${p.image}" alt="" onerror="this.parentNode.textContent='🌿'"></div>`
+          : `<div class="td-imagen">🌿</div>`;
+        return `
+          <tr>
+            <td>${imgCel}</td>
+            <td><div class="nombre-col">${p.name || '–'}</div></td>
+            <td><span class="badge">${p.category || '–'}</span></td>
+            <td><div class="desc-col">${p.description || '–'}</div></td>
+            <td><div class="precio-col">${precio}</div></td>
+            <td>
+              <div class="acciones">
+                <button class="btn-icon" data-id="${p.id}" data-accion="editar" title="Editar">✏️</button>
+                <button class="btn-icon eliminar" data-id="${p.id}" data-nombre="${p.name}" data-accion="eliminar" title="Eliminar">🗑️</button>
+              </div>
+            </td>
+          </tr>`;
+      }).join('');
+
+      tbody.querySelectorAll('[data-accion="eliminar"]').forEach(btn => {
+        btn.addEventListener('click', () => abrirConfirmarEliminar(btn.dataset.id, btn.dataset.nombre));
+      });
+      tbody.querySelectorAll('[data-accion="editar"]').forEach(btn => {
+        btn.addEventListener('click', () => abrirEditar(btn.dataset.id));
+      });
+    }
+
+    document.getElementById('adminBuscador').addEventListener('input', e => {
+      busqueda = e.target.value.toLowerCase().trim();
+      renderTabla();
+    });
+
+    // ── Modal ──
+    function abrirModal(titulo) {
+      document.getElementById('modalTitulo').textContent = titulo;
+      document.getElementById('modalOverlay').classList.add('visible');
+    }
+
+    function cerrarModal() {
+      document.getElementById('modalOverlay').classList.remove('visible');
+      limpiarForm();
+    }
+
+    function limpiarForm() {
+      editandoId = null;
+      imagenNueva = null;
+      imagenUrlAnterior = null;
+      document.getElementById('formNombre').value = '';
+      document.getElementById('formCategoria').value = '';
+      document.getElementById('formPrecio').value = '';
+      document.getElementById('formDescripcion').value = '';
+      document.getElementById('imgPreview').innerHTML = `
+        <span class="upload-icon">📷</span>
+        <label class="upload-label" for="formImagen">Subir imagen</label>
+        <span style="font-size:12px">JPG, PNG, WEBP — máx 2MB</span>`;
+    }
+
+    document.getElementById('nuevoProductoBtn').addEventListener('click', () => {
+      limpiarForm();
+      abrirModal('Nuevo producto');
+    });
+    document.getElementById('nuevoProductoBtn2').addEventListener('click', () => {
+      limpiarForm();
+      abrirModal('Nuevo producto');
+    });
+    document.getElementById('modalCerrar').addEventListener('click', cerrarModal);
+    document.getElementById('modalCancelar').addEventListener('click', cerrarModal);
+    document.getElementById('modalOverlay').addEventListener('click', e => {
+      if (e.target === document.getElementById('modalOverlay')) cerrarModal();
+    });
+
+    function abrirEditar(id) {
+      const p = productos.find(x => x.id === id);
+      if (!p) return;
+      editandoId = id;
+      imagenUrlAnterior = p.image || null;
+      document.getElementById('formNombre').value = p.name || '';
+      document.getElementById('formCategoria').value = p.category || '';
+      document.getElementById('formPrecio').value = p.price || '';
+      document.getElementById('formDescripcion').value = p.description || '';
+      const preview = document.getElementById('imgPreview');
+      if (p.image) {
+        preview.innerHTML = `
+          <img src="${p.image}" alt="Imagen actual" style="width:100%;height:100%;object-fit:cover;border-radius:8px">
+          <div style="position:absolute;inset:0;background:rgba(0,0,0,0.4);border-radius:8px;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s;cursor:pointer" 
+               class="img-hover-overlay">
+            <span style="color:white;font-size:13px;font-weight:500">📷 Cambiar imagen</span>
+          </div>`;
+        preview.style.cursor = 'pointer';
+        preview.style.position = 'relative';
+        preview.querySelector('.img-hover-overlay').addEventListener('mouseenter', e => e.target.style.opacity = '1');
+        preview.querySelector('.img-hover-overlay').addEventListener('mouseleave', e => e.target.style.opacity = '0');
+        preview.addEventListener('click', () => document.getElementById('formImagen').click());
+      }
+      abrirModal('Editar producto');
+    }
+
+    // ── Imagen preview ──
+    document.getElementById('formImagen').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      if (file.size > 2 * 1024 * 1024) { mostrarToast('La imagen supera los 2MB', true); return; }
+      imagenNueva = file;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        document.getElementById('imgPreview').innerHTML = `<img src="${ev.target.result}" alt="Preview">`;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // ── Guardar ──
+    document.getElementById('guardarBtn').addEventListener('click', async () => {
+      const nombre = document.getElementById('formNombre').value.trim();
+      const categoria = document.getElementById('formCategoria').value.trim();
+      const precio = Number(document.getElementById('formPrecio').value) || 0;
+      const descripcion = document.getElementById('formDescripcion').value.trim();
+
+      if (!nombre || !categoria) { mostrarToast('Nombre y categoría son obligatorios', true); return; }
+
+      const btn = document.getElementById('guardarBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Guardando…';
+
+      try {
+        let imagenUrl = imagenUrlAnterior || '';
+
+        if (imagenNueva) {
+          const formData = new FormData();
+          formData.append('file', imagenNueva);
+          formData.append('upload_preset', CLOUDINARY_PRESET);
+          const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, {
+            method: 'POST',
+            body: formData
+          });
+          const data = await res.json();
+          if (!data.secure_url) throw new Error('Error al subir imagen');
+          imagenUrl = data.secure_url;
+        }
+
+        const data = { name: nombre, category: categoria, price: precio, description: descripcion, image: imagenUrl, updatedAt: serverTimestamp() };
+
+        if (editandoId) {
+          await updateDoc(doc(db, 'productos', editandoId), data);
+          mostrarToast('Producto actualizado ✓');
+        } else {
+          data.createdAt = serverTimestamp();
+          await addDoc(collection(db, 'productos'), data);
+          mostrarToast('Producto creado ✓');
+        }
+
+        cerrarModal();
+        await cargarProductos();
+      } catch (e) {
+        console.error(e);
+        mostrarToast('Error al guardar', true);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Guardar producto';
+      }
+    });
+
+    // ── Eliminar ──
+    function abrirConfirmarEliminar(id, nombre) {
+      eliminandoId = id;
+      document.getElementById('confirmNombre').textContent = `"${nombre}" será eliminado permanentemente.`;
+      document.getElementById('confirmOverlay').classList.add('visible');
+    }
+
+    document.getElementById('confirmCancelar').addEventListener('click', () => {
+      document.getElementById('confirmOverlay').classList.remove('visible');
+      eliminandoId = null;
+    });
+
+    document.getElementById('confirmEliminar').addEventListener('click', async () => {
+      if (!eliminandoId) return;
+      const p = productos.find(x => x.id === eliminandoId);
+      try {
+        await deleteDoc(doc(db, 'productos', eliminandoId));
+        mostrarToast('Producto eliminado');
+        document.getElementById('confirmOverlay').classList.remove('visible');
+        eliminandoId = null;
+        await cargarProductos();
+      } catch (e) {
+        mostrarToast('Error al eliminar', true);
+      }
+    });
+
+    // ── Toast ──
+    function mostrarToast(msg, esError = false) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = `toast${esError ? ' error' : ''} visible`;
+      setTimeout(() => t.classList.remove('visible'), 3000);
+    }
+
+    // ── Categorías ──
+    document.getElementById('gestionCatsBtn').addEventListener('click', () => {
+      const card = document.getElementById('cardCategorias');
+      card.style.display = card.style.display === 'none' ? 'block' : 'none';
+      if (card.style.display === 'block') renderCategorias();
+    });
+
+    document.getElementById('catsCerrar').addEventListener('click', () => {
+      document.getElementById('cardCategorias').style.display = 'none';
+    });
+
+    function renderCategorias() {
+      const cats = [...new Set(productos.map(p => p.category).filter(Boolean))].sort();
+      const lista = document.getElementById('catsList');
+
+      if (!cats.length) {
+        lista.innerHTML = `<div style="padding:16px 18px;font-size:13px;color:var(--texto-suave)">No hay categorías cargadas.</div>`;
+        return;
+      }
+
+      lista.innerHTML = cats.map(cat => {
+        const count = productos.filter(p => p.category === cat).length;
+        return `
+          <div class="cat-fila">
+            <div class="cat-nombre">${cat}</div>
+            <div class="cat-count">${count} producto${count !== 1 ? 's' : ''}</div>
+            <input class="cat-input" type="text" value="${cat}" data-original="${cat}" placeholder="Nuevo nombre" />
+            <button class="btn-cat-renombrar" data-cat="${cat}">Renombrar</button>
+          </div>`;
+      }).join('');
+
+      lista.querySelectorAll('.btn-cat-renombrar').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const fila = btn.closest('.cat-fila');
+          const input = fila.querySelector('.cat-input');
+          const catOriginal = btn.dataset.cat;
+          const catNueva = input.value.trim();
+
+          if (!catNueva || catNueva === catOriginal) {
+            mostrarToast('Ingresá un nombre distinto', true);
+            return;
+          }
+
+          if (!confirm(`¿Renombrar "${catOriginal}" a "${catNueva}" en todos los productos?`)) return;
+
+          btn.disabled = true;
+          btn.textContent = '…';
+
+          try {
+            const afectados = productos.filter(p => p.category === catOriginal);
+            for (const p of afectados) {
+              await updateDoc(doc(db, 'productos', p.id), { category: catNueva });
+            }
+            mostrarToast(`"${catOriginal}" renombrada a "${catNueva}" (${afectados.length} productos)`);
+            await cargarProductos();
+            renderCategorias();
+          } catch (e) {
+            mostrarToast('Error al renombrar', true);
+            btn.disabled = false;
+            btn.textContent = 'Renombrar';
+          }
+        });
+      });
+    }
+  </script>
+</body>
+</html>

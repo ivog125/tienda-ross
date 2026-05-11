@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Importar Productos – Tienda Ross</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=Cormorant+Garamond:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --verde: #3a5a40; --verde-claro: #a3b18a; --crema: #faf8f3;
+      --crema-oscuro: #ede8dc; --texto: #2c2c2c; --texto-suave: #7a7a6e;
+      --blanco: #ffffff; --radio: 10px;
+    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--crema); color: var(--texto); padding: 40px 20px; }
+    .container { max-width: 700px; margin: 0 auto; }
+    h1 { font-family: 'Cormorant Garamond', serif; font-size: 28px; color: var(--verde); margin-bottom: 6px; }
+    .subtitle { font-size: 14px; color: var(--texto-suave); margin-bottom: 32px; }
+    .card { background: var(--blanco); border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 2px 16px rgba(0,0,0,0.07); }
+    .card h2 { font-size: 16px; font-weight: 500; margin-bottom: 16px; color: var(--verde); }
+    .btn {
+      background: var(--verde); color: var(--blanco); border: none; border-radius: 8px;
+      padding: 12px 24px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
+      cursor: pointer; transition: background 0.2s; display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn:hover { background: #2e4a34; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn.danger { background: #c0392b; }
+    .btn.danger:hover { background: #a93226; }
+    #log {
+      background: #1a1a1a; color: #a8d8a8; border-radius: 8px; padding: 16px;
+      font-family: monospace; font-size: 13px; line-height: 1.7;
+      max-height: 380px; overflow-y: auto; white-space: pre-wrap; margin-top: 16px;
+    }
+    .log-error { color: #ff8080; }
+    .log-ok { color: #80ff80; }
+    .log-info { color: #80c8ff; }
+    .warning {
+      background: #fff8e1; border: 1px solid #ffe082; border-radius: 8px;
+      padding: 14px 16px; font-size: 13px; color: #7c5e00; margin-bottom: 20px;
+    }
+    input[type="email"], input[type="password"] {
+      width: 100%; padding: 10px 13px; border: 1.5px solid var(--crema-oscuro);
+      border-radius: var(--radio); font-family: 'DM Sans', sans-serif; font-size: 14px;
+      outline: none; background: var(--blanco); margin-bottom: 10px;
+    }
+    input:focus { border-color: var(--verde); }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>🌿 Importar Productos</h1>
+  <p class="subtitle">Cargá los productos iniciales de Tienda Ross en Firestore. Usá esto una sola vez.</p>
+
+  <div class="warning">
+    ⚠️ <strong>Atención:</strong> Este proceso crea los documentos en Firestore. Si ya existen productos, se agregarán duplicados. Verificá el estado antes de importar.
+  </div>
+
+  <div class="card">
+    <h2>🔐 Autenticación</h2>
+    <input type="email" id="email" placeholder="Email del admin" />
+    <input type="password" id="pass" placeholder="Contraseña" />
+    <button class="btn" id="loginBtn">Iniciar sesión</button>
+  </div>
+
+  <div class="card">
+    <h2>📦 Importar productos</h2>
+    <p style="font-size:13px;color:var(--texto-suave);margin-bottom:16px">
+      Se importarán <strong>33 productos</strong> distribuidos en 4 categorías: Prama, Vital Mar, Línea Depurativa y Productos Varios.
+    </p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn" id="importarBtn" disabled>▶ Importar productos</button>
+      <button class="btn danger" id="limpiarBtn" disabled>🗑 Limpiar colección</button>
+    </div>
+    <div id="log">Esperando acción…</div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import { getAuth, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyClKPY6RlksLHmZlNP0brfTzB6JPhbXTts",
+    authDomain: "tienda-ross-66e01.firebaseapp.com",
+    projectId: "tienda-ross-66e01",
+    storageBucket: "tienda-ross-66e01.firebasestorage.app",
+    messagingSenderId: "1046212701295",
+    appId: "1:1046212701295:web:8453775da2565e5872b19a"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  const productos = [
+    // PRAMA
+    { nombre: "Spirulina Premium", categoria: "Prama", descripcion: "Alga verde-azul rica en proteínas, vitaminas y minerales.", precio: 0 },
+    { nombre: "Chlorella", categoria: "Prama", descripcion: "Alga unicelular desintoxicante y altamente nutritiva.", precio: 0 },
+    { nombre: "Moringa", categoria: "Prama", descripcion: "Árbol milagroso con vitaminas A, B, C y minerales esenciales.", precio: 0 },
+    { nombre: "Ashwagandha", categoria: "Prama", descripcion: "Adaptógeno ayurvédico para el estrés y la energía.", precio: 0 },
+    { nombre: "Cúrcuma con Pimienta", categoria: "Prama", descripcion: "Antiinflamatorio natural potenciado con piperina.", precio: 0 },
+    { nombre: "Maca Andina", categoria: "Prama", descripcion: "Raíz energizante y hormono-reguladora de los Andes.", precio: 0 },
+    { nombre: "Jengibre en cápsulas", categoria: "Prama", descripcion: "Digestivo, antiinflamatorio y estimulante circulatorio.", precio: 0 },
+    { nombre: "Omega 3 Vegano", categoria: "Prama", descripcion: "DHA y EPA de origen algal, sin gluten ni lácteos.", precio: 0 },
+    { nombre: "Probióticos Multi-cepa", categoria: "Prama", descripcion: "12 cepas probióticas para equilibrio intestinal.", precio: 0 },
+    { nombre: "Vitamina D3 + K2", categoria: "Prama", descripcion: "Sinergia para huesos, sistema inmune y corazón.", precio: 0 },
+
+    // VITAL MAR
+    { nombre: "Alga Wakame", categoria: "Vital Mar", descripcion: "Rica en yodo, calcio y vitaminas del grupo B.", precio: 0 },
+    { nombre: "Kombu", categoria: "Vital Mar", descripcion: "Alga para cocinar, mejora la digestión de legumbres.", precio: 0 },
+    { nombre: "Nori en hojas", categoria: "Vital Mar", descripcion: "Alga japonesa ideal para sushi y snacks saludables.", precio: 0 },
+    { nombre: "Dulse", categoria: "Vital Mar", descripcion: "Alga roja con sabor ahumado, rica en hierro y proteínas.", precio: 0 },
+    { nombre: "Agar Agar", categoria: "Vital Mar", descripcion: "Gelificante natural vegano derivado de algas rojas.", precio: 0 },
+    { nombre: "Espirulina en Polvo", categoria: "Vital Mar", descripcion: "Proteína completa de alga para batidos y recetas.", precio: 0 },
+    { nombre: "Fucus Vesiculosus", categoria: "Vital Mar", descripcion: "Alga parda para tiroides y control de peso.", precio: 0 },
+    { nombre: "Lithothamne", categoria: "Vital Mar", descripcion: "Alga calcárea para remineralización y alcalinizar.", precio: 0 },
+
+    // LÍNEA DEPURATIVA
+    { nombre: "Diente de León", categoria: "Línea Depurativa", descripcion: "Depurativo hepático y diurético natural.", precio: 0 },
+    { nombre: "Alcachofa", categoria: "Línea Depurativa", descripcion: "Estimula la producción de bilis y depura el hígado.", precio: 0 },
+    { nombre: "Cardo Mariano", categoria: "Línea Depurativa", descripcion: "Silimarina para proteger y regenerar las células hepáticas.", precio: 0 },
+    { nombre: "Boldo", categoria: "Línea Depurativa", descripcion: "Tradicional digestivo y protector hepático latinoamericano.", precio: 0 },
+    { nombre: "Ortiga", categoria: "Línea Depurativa", descripcion: "Depurativa, rica en hierro y vitamina C.", precio: 0 },
+    { nombre: "Cola de Caballo", categoria: "Línea Depurativa", descripcion: "Diurética y remineralizante, favorece piel y uñas.", precio: 0 },
+    { nombre: "Uva Ursi", categoria: "Línea Depurativa", descripcion: "Antiséptico urinario natural para la salud renal.", precio: 0 },
+    { nombre: "Te Verde Detox", categoria: "Línea Depurativa", descripcion: "Mezcla depurativa con té verde, diente de león y menta.", precio: 0 },
+
+    // PRODUCTOS VARIOS
+    { nombre: "Polen de Abeja", categoria: "Productos Varios", descripcion: "Superalimento energizante con aminoácidos y enzimas.", precio: 0 },
+    { nombre: "Propóleo en gotas", categoria: "Productos Varios", descripcion: "Antibacteriano y antiviral natural de la colmena.", precio: 0 },
+    { nombre: "Aceite de Coco Orgánico", categoria: "Productos Varios", descripcion: "Prensado en frío, para cocinar y uso cosmético.", precio: 0 },
+    { nombre: "Semillas de Chía", categoria: "Productos Varios", descripcion: "Omega 3, fibra y proteína vegetal de alta calidad.", precio: 0 },
+    { nombre: "Linaza Molida", categoria: "Productos Varios", descripcion: "Fibra soluble y lignanos para digestión y colesterol.", precio: 0 },
+    { nombre: "Levadura de Cerveza", categoria: "Productos Varios", descripcion: "Vitaminas del grupo B, minerales y aminoácidos esenciales.", precio: 0 },
+    { nombre: "Germen de Trigo", categoria: "Productos Varios", descripcion: "Vitamina E, ácido fólico y proteínas de alto valor biológico.", precio: 0 },
+  ];
+
+  const logEl = document.getElementById('log');
+  function log(msg, tipo = '') {
+    const cls = tipo === 'error' ? 'log-error' : tipo === 'ok' ? 'log-ok' : tipo === 'info' ? 'log-info' : '';
+    logEl.innerHTML += `<span class="${cls}">${msg}\n</span>`;
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  document.getElementById('loginBtn').addEventListener('click', async () => {
+    const email = document.getElementById('email').value.trim();
+    const pass = document.getElementById('pass').value;
+    try {
+      await signInWithEmailAndPassword(auth, email, pass);
+      log('✓ Sesión iniciada correctamente.', 'ok');
+      document.getElementById('importarBtn').disabled = false;
+      document.getElementById('limpiarBtn').disabled = false;
+    } catch (e) {
+      log('✗ Error de autenticación: ' + e.message, 'error');
+    }
+  });
+
+  document.getElementById('importarBtn').addEventListener('click', async () => {
+    if (!confirm(`¿Importar ${productos.length} productos a Firestore?`)) return;
+    const btn = document.getElementById('importarBtn');
+    btn.disabled = true;
+    log('\n— Iniciando importación —', 'info');
+    let ok = 0, err = 0;
+    for (const p of productos) {
+      try {
+        await addDoc(collection(db, 'productos'), { ...p, imagen: '', createdAt: serverTimestamp() });
+        log(`✓ ${p.nombre} (${p.categoria})`, 'ok');
+        ok++;
+      } catch (e) {
+        log(`✗ Error en "${p.nombre}": ${e.message}`, 'error');
+        err++;
+      }
+    }
+    log(`\n— Importación terminada: ${ok} OK, ${err} errores —`, 'info');
+    btn.disabled = false;
+  });
+
+  document.getElementById('limpiarBtn').addEventListener('click', async () => {
+    if (!confirm('¿ELIMINAR TODOS los productos de Firestore? Esta acción no se puede deshacer.')) return;
+    const btn = document.getElementById('limpiarBtn');
+    btn.disabled = true;
+    log('\n— Limpiando colección —', 'info');
+    try {
+      const snap = await getDocs(collection(db, 'productos'));
+      let n = 0;
+      for (const d of snap.docs) {
+        await deleteDoc(doc(db, 'productos', d.id));
+        n++;
+      }
+      log(`✓ ${n} documentos eliminados.`, 'ok');
+    } catch (e) {
+      log('✗ Error: ' + e.message, 'error');
+    }
+    btn.disabled = false;
+  });
+</script>
+</body>
+</html>

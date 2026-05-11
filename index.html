@@ -379,6 +379,25 @@
       color: var(--verde);
     }
 
+    .saber-mas-btn {
+      background: none;
+      color: var(--verde);
+      border: 1.5px solid var(--verde-claro);
+      border-radius: 30px;
+      padding: 7px 12px;
+      font-size: 12px;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      transition: var(--transicion);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .saber-mas-btn:hover {
+      background: var(--verde-muy-claro);
+      border-color: var(--verde);
+    }
+
     /* ── SIN RESULTADOS ── */
     .sin-resultados {
       text-align: center;
@@ -637,6 +656,141 @@
 
     .toast.visible { transform: translateX(-50%) translateY(0); }
 
+    /* ── MODAL PRODUCTO ── */
+    .producto-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 250;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s;
+    }
+
+    .producto-overlay.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .producto-modal {
+      background: var(--blanco);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 560px;
+      max-height: 90vh;
+      overflow-y: auto;
+      transform: scale(0.95) translateY(10px);
+      transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+
+    .producto-overlay.visible .producto-modal {
+      transform: scale(1) translateY(0);
+    }
+
+    .pm-imagen {
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      border-radius: 16px 16px 0 0;
+      background: var(--verde-muy-claro);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 60px;
+    }
+
+    .pm-imagen img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 16px 16px 0 0;
+    }
+
+    .pm-body { padding: 24px; }
+
+    .pm-cat {
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--verde-claro);
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+
+    .pm-nombre {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--texto);
+      margin-bottom: 16px;
+      line-height: 1.2;
+    }
+
+    .pm-seccion {
+      margin-bottom: 16px;
+    }
+
+    .pm-seccion-titulo {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--verde);
+      margin-bottom: 5px;
+    }
+
+    .pm-seccion-texto {
+      font-size: 14px;
+      color: var(--texto-suave);
+      line-height: 1.6;
+    }
+
+    .pm-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      border-top: 1px solid var(--crema-oscuro);
+      gap: 12px;
+    }
+
+    .pm-precio {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--verde);
+    }
+
+    .pm-acciones { display: flex; gap: 10px; align-items: center; }
+
+    .pm-cerrar {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.35);
+      border: none;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+      z-index: 1;
+    }
+
+    .pm-cerrar:hover { background: rgba(0,0,0,0.55); }
+
+    .pm-wrap { position: relative; }
+
     /* ── RESPONSIVE ── */
     @media (max-width: 600px) {
       .header-inner { padding: 0 16px; height: 60px; }
@@ -741,6 +895,42 @@
   <!-- TOAST -->
   <div class="toast" id="toast"></div>
 
+  <!-- MODAL PRODUCTO -->
+  <div class="producto-overlay" id="productoOverlay">
+    <div class="producto-modal">
+      <div class="pm-wrap">
+        <button class="pm-cerrar" id="pmCerrar">✕</button>
+        <div id="pmImagen" class="pm-imagen">🌿</div>
+      </div>
+      <div class="pm-body">
+        <div class="pm-cat" id="pmCat"></div>
+        <div class="pm-nombre" id="pmNombre"></div>
+        <div class="pm-seccion" id="pmDescWrap">
+          <div class="pm-seccion-titulo">Descripción</div>
+          <div class="pm-seccion-texto" id="pmDesc"></div>
+        </div>
+        <div class="pm-seccion" id="pmBenefWrap">
+          <div class="pm-seccion-titulo">Beneficios</div>
+          <div class="pm-seccion-texto" id="pmBenef"></div>
+        </div>
+        <div class="pm-seccion" id="pmIngWrap">
+          <div class="pm-seccion-titulo">Ingredientes</div>
+          <div class="pm-seccion-texto" id="pmIng"></div>
+        </div>
+        <div class="pm-seccion" id="pmUsoWrap">
+          <div class="pm-seccion-titulo">Modo de uso</div>
+          <div class="pm-seccion-texto" id="pmUso"></div>
+        </div>
+      </div>
+      <div class="pm-footer">
+        <div class="pm-precio" id="pmPrecio"></div>
+        <div class="pm-acciones">
+          <button class="agregar-btn" id="pmAgregar">+ Agregar al carrito</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
     import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
@@ -844,12 +1034,15 @@
             </div>
             <div class="producto-footer">
               <div class="producto-precio">${precio}</div>
-              ${sinStock
-                ? `<span style="font-size:12px;color:var(--texto-suave);font-style:italic">Sin stock</span>`
-                : `<button class="agregar-btn ${enCarrito ? 'en-carrito' : ''}"
-                    data-id="${p.id}" data-name="${p.name}" data-price="${p.price || 0}" data-image="${p.image || ''}">
-                    ${enCarrito ? '✓ Agregado' : '+ Agregar'}
-                  </button>`}
+              <div style="display:flex;gap:6px;align-items:center">
+                <button class="saber-mas-btn" data-id="${p.id}">Ver más</button>
+                ${sinStock
+                  ? `<span style="font-size:12px;color:var(--texto-suave);font-style:italic">Sin stock</span>`
+                  : `<button class="agregar-btn ${enCarrito ? 'en-carrito' : ''}"
+                      data-id="${p.id}" data-name="${p.name}" data-price="${p.price || 0}" data-image="${p.image || ''}">
+                      ${enCarrito ? '✓' : '+'}
+                    </button>`}
+              </div>
             </div>
           </div>`;
       }).join('');
@@ -865,6 +1058,66 @@
           renderProductos();
         });
       });
+
+      grid.querySelectorAll('.saber-mas-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const p = productos.find(x => x.id === btn.dataset.id);
+          if (p) abrirModalProducto(p);
+        });
+      });
+    }
+
+    // ── Modal producto ──
+    function abrirModalProducto(p) {
+      const precio = p.price ? `$${Number(p.price).toLocaleString('es-AR')}` : 'Consultar';
+      const enCarrito = carrito.some(c => c.id === p.id);
+
+      // Imagen
+      const imgEl = document.getElementById('pmImagen');
+      if (p.image) {
+        imgEl.innerHTML = `<img src="${p.image}" alt="${p.name}">`;
+      } else {
+        imgEl.innerHTML = '🌿';
+        imgEl.style.display = 'flex';
+      }
+
+      document.getElementById('pmCat').textContent = p.category || '';
+      document.getElementById('pmNombre').textContent = p.name || '';
+      document.getElementById('pmPrecio').textContent = precio;
+
+      const campos = [
+        { wrap: 'pmDescWrap', txt: 'pmDesc', val: p.description },
+        { wrap: 'pmBenefWrap', txt: 'pmBenef', val: p.benefits },
+        { wrap: 'pmIngWrap', txt: 'pmIng', val: p.ingredients },
+        { wrap: 'pmUsoWrap', txt: 'pmUso', val: p.usage },
+      ];
+      campos.forEach(({ wrap, txt, val }) => {
+        document.getElementById(wrap).style.display = val ? 'block' : 'none';
+        document.getElementById(txt).textContent = val || '';
+      });
+
+      const btnAgregar = document.getElementById('pmAgregar');
+      btnAgregar.textContent = enCarrito ? '✓ Agregado' : '+ Agregar al carrito';
+      btnAgregar.className = `agregar-btn${enCarrito ? ' en-carrito' : ''}`;
+      btnAgregar.onclick = () => {
+        agregarAlCarrito({ id: p.id, nombre: p.name, precio: Number(p.price || 0), imagen: p.image || '' });
+        btnAgregar.textContent = '✓ Agregado';
+        btnAgregar.className = 'agregar-btn en-carrito';
+        renderProductos();
+      };
+
+      document.getElementById('productoOverlay').classList.add('visible');
+      document.body.style.overflow = 'hidden';
+    }
+
+    document.getElementById('pmCerrar').addEventListener('click', cerrarModalProducto);
+    document.getElementById('productoOverlay').addEventListener('click', e => {
+      if (e.target === document.getElementById('productoOverlay')) cerrarModalProducto();
+    });
+
+    function cerrarModalProducto() {
+      document.getElementById('productoOverlay').classList.remove('visible');
+      document.body.style.overflow = '';
     }
 
     // ── Carrito ──

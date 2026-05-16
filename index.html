@@ -398,6 +398,42 @@
       border-color: var(--verde);
     }
 
+    .qty-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--verde-muy-claro);
+      border-radius: 30px;
+      padding: 4px 8px;
+    }
+
+    .qty-card-btn {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 1.5px solid var(--verde-claro);
+      background: var(--blanco);
+      color: var(--verde);
+      font-size: 15px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transicion);
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    .qty-card-btn:hover { background: var(--verde); color: var(--blanco); border-color: var(--verde); }
+
+    .qty-card-num {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--verde);
+      min-width: 16px;
+      text-align: center;
+    }
+
     /* ── SIN RESULTADOS ── */
     .sin-resultados {
       text-align: center;
@@ -1038,10 +1074,16 @@
                 <button class="saber-mas-btn" data-id="${p.id}">Ver más</button>
                 ${sinStock
                   ? `<span style="font-size:12px;color:var(--texto-suave);font-style:italic">Sin stock</span>`
-                  : `<button class="agregar-btn ${enCarrito ? 'en-carrito' : ''}"
-                      data-id="${p.id}" data-name="${p.name}" data-price="${p.price || 0}" data-image="${p.image || ''}">
-                      ${enCarrito ? '✓' : '+'}
-                    </button>`}
+                  : enCarrito
+                    ? `<div class="qty-controls">
+                        <button class="qty-card-btn" data-id="${p.id}" data-delta="-1">−</button>
+                        <span class="qty-card-num">${carrito.find(c => c.id === p.id)?.cantidad || 1}</span>
+                        <button class="qty-card-btn" data-id="${p.id}" data-delta="1">+</button>
+                       </div>`
+                    : `<button class="agregar-btn"
+                        data-id="${p.id}" data-name="${p.name}" data-price="${p.price || 0}" data-image="${p.image || ''}">
+                        + Agregar
+                      </button>`}
               </div>
             </div>
           </div>`;
@@ -1056,6 +1098,12 @@
             imagen: btn.dataset.image
           });
           renderProductos();
+        });
+      });
+
+      grid.querySelectorAll('.qty-card-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          cambiarCantidad(btn.dataset.id, Number(btn.dataset.delta));
         });
       });
 

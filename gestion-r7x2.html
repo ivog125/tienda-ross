@@ -654,18 +654,21 @@
     }
     .pedido-total { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: var(--verde); }
     .pedido-acciones { display: flex; gap: 6px; align-items: center; }
-    .btn-avanzar {
-      padding: 6px 12px;
-      border-radius: 8px;
+    .btn-estado {
+      padding: 5px 11px;
+      border-radius: 30px;
       border: 1.5px solid var(--crema-oscuro);
       background: var(--blanco);
       font-family: 'DM Sans', sans-serif;
-      font-size: 12px;
+      font-size: 11px;
       cursor: pointer;
       transition: all 0.2s;
-      font-weight: 500;
+      color: var(--texto-suave);
     }
-    .btn-avanzar:hover { background: var(--verde); color: var(--blanco); border-color: var(--verde); }
+    .btn-estado:not(:disabled):hover { border-color: var(--verde); color: var(--verde); }
+    .btn-estado.activo-nuevo { background: var(--rojo-claro); color: var(--rojo); border-color: var(--rojo); font-weight: 500; cursor: default; }
+    .btn-estado.activo-en-proceso { background: #fef3e2; color: #e67e22; border-color: #e67e22; font-weight: 500; cursor: default; }
+    .btn-estado.activo-entregado { background: #e8f5e9; color: #27ae60; border-color: #27ae60; font-weight: 500; cursor: default; }
     .btn-wsp-link {
       padding: 6px 12px;
       border-radius: 8px;
@@ -1495,7 +1498,6 @@
         return;
       }
       grid.innerHTML = filtrada.map(p => {
-        const sigEstado = ESTADO_SIGUIENTE[p.estado];
         return `
           <div class="pedido-card estado-${p.estado}">
             <div class="pedido-cabecera">
@@ -1516,14 +1518,16 @@
             <div class="pedido-footer-row">
               <div class="pedido-total">$${(p.total || 0).toLocaleString('es-AR')}</div>
               <div class="pedido-acciones">
-                ${sigEstado ? `<button class="btn-avanzar" data-id="${p.id}" data-estado="${sigEstado}">${ESTADO_BTN_LABEL[p.estado]}</button>` : ''}
+                <button class="btn-estado ${p.estado === 'nuevo' ? 'activo-nuevo' : ''}" data-id="${p.id}" data-estado="nuevo" ${p.estado === 'nuevo' ? 'disabled' : ''}>Nuevo</button>
+                <button class="btn-estado ${p.estado === 'en-proceso' ? 'activo-en-proceso' : ''}" data-id="${p.id}" data-estado="en-proceso" ${p.estado === 'en-proceso' ? 'disabled' : ''}>En proceso</button>
+                <button class="btn-estado ${p.estado === 'entregado' ? 'activo-entregado' : ''}" data-id="${p.id}" data-estado="entregado" ${p.estado === 'entregado' ? 'disabled' : ''}>Entregado</button>
                 ${p.telefono ? `<a class="btn-wsp-link" href="https://wa.me/54${p.telefono.replace(/\D/g,'')}" target="_blank">WhatsApp ↗</a>` : ''}
               </div>
             </div>
           </div>`;
       }).join('');
 
-      grid.querySelectorAll('.btn-avanzar').forEach(btn => {
+      grid.querySelectorAll('.btn-estado:not(:disabled)').forEach(btn => {
         btn.addEventListener('click', () => cambiarEstadoPedido(btn.dataset.id, btn.dataset.estado));
       });
     }

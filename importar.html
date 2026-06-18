@@ -79,7 +79,7 @@
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
   import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-  import { getAuth, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, getIdTokenResult } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
   const firebaseConfig = {
     apiKey: "AIzaSyClKPY6RlksLHmZlNP0brfTzB6JPhbXTts",
@@ -93,6 +93,30 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   const auth = getAuth(app);
+
+  onAuthStateChanged(auth, async user => {
+    try {
+      if (!user) {
+        document.getElementById('importarBtn').disabled = true;
+        document.getElementById('limpiarBtn').disabled = true;
+        return;
+      }
+      const token = await getIdTokenResult(user);
+      const isAdmin = !!(token?.claims && token.claims.admin);
+      document.getElementById('importarBtn').disabled = !isAdmin;
+      document.getElementById('limpiarBtn').disabled = !isAdmin;
+      if (isAdmin) {
+        log('✓ Sesión activa (admin). Ya podés importar o limpiar la colección.', 'ok');
+      } else {
+        log('Usuario autenticado sin permisos admin. Contactá al responsable.', 'error');
+      }
+    } catch (e) {
+      console.error('Error verificando claims:', e);
+      document.getElementById('importarBtn').disabled = true;
+      document.getElementById('limpiarBtn').disabled = true;
+      log('Error verificando permisos: ' + e.message, 'error');
+    }
+  });
 
   const productos = [
     // PRAMA
@@ -163,17 +187,30 @@
     btn.disabled = true;
     log('\n— Iniciando importación —', 'info');
     let ok = 0, err = 0;
+
     for (const p of productos) {
       try {
-        await addDoc(collection(db, 'productos'), { ...p, imagen: '', createdAt: serverTimestamp() });
-        log(`✓ ${p.nombre} (${p.categoria})`, 'ok');
+        await addDoc(collection(db, 'productos'), {
+          name: p.nombre,
+          category: p.categoria,
+          description: p.descripcion,
+          price: Number(p.precio || 0),
+          image: '',
+          benefits: p.benefits || '',
+          ingredients: p.ingredients || '',
+          usage: p.usage || '',
+          stock: p.stock || 'in',
+          createdAt: serverTimestamp()
+        });
         ok++;
+        log(`✓ ${p.nombre} importado`, 'ok');
       } catch (e) {
-        log(`✗ Error en "${p.nombre}": ${e.message}`, 'error');
         err++;
+        log(`✗ ${p.nombre}: ${e.message}`, 'error');
       }
     }
-    log(`\n— Importación terminada: ${ok} OK, ${err} errores —`, 'info');
+
+    log(`\nImportación completa: ${ok} productos importados, ${err} errores.`, 'info');
     btn.disabled = false;
   });
 

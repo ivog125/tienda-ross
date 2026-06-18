@@ -31,7 +31,7 @@
     }
 
     /* ── APP ── */
-    #appScreen { display: block; }
+    #appScreen { display: none; }
 
     header {
       background: var(--verde);
@@ -575,9 +575,71 @@
       th:nth-child(3), td:nth-child(3),
       th:nth-child(4), td:nth-child(4) { display: none; }
     }
+
+    #loginScreen {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background: linear-gradient(180deg, #f7f5ef 0%, #e3ede2 100%);
+    }
+    .login-card {
+      width: min(520px, 100%);
+      background: #ffffff;
+      border-radius: 18px;
+      box-shadow: 0 18px 45px rgba(46, 74, 52, 0.12);
+      padding: 32px 34px;
+    }
+    .login-card h1 { font-size: 28px; margin-bottom: 10px; color: #30492f; }
+    .login-card p { color: #67706b; margin-bottom: 22px; line-height: 1.6; }
+    .login-card input {
+      width: 100%;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+      border: 1.5px solid #dcd7d0;
+      border-radius: 12px;
+      font-size: 14px;
+      outline: none;
+    }
+    .login-card button {
+      width: 100%;
+      padding: 14px 16px;
+      border: none;
+      border-radius: 12px;
+      background: #3a5a40;
+      color: #ffffff;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .login-card button:hover { background: #2e4a34; }
+    .login-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+    .login-actions button { flex: 1; }
+    .login-note { font-size: 12px; color: #7a7a6e; margin-top: 12px; }
+    .user-badge {
+      font-size: 13px;
+      color: #ffffff;
+      background: rgba(255,255,255,0.15);
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.2);
+      white-space: nowrap;
+    }
   </style>
 </head>
 <body>
+
+  <div id="loginScreen">
+    <div class="login-card">
+      <h1>Admin Tienda Ross</h1>
+      <p>Ingresá con tu cuenta para acceder al panel de administración. Solo administradores autorizados deben usar esta página.</p>
+      <input type="email" id="adminEmail" placeholder="Correo electrónico" autocomplete="username" />
+      <input type="password" id="adminPass" placeholder="Contraseña" autocomplete="current-password" />
+      <div class="login-actions">
+        <button id="adminLoginBtn">Iniciar sesión</button>
+      </div>
+      <div class="login-note">Si ya iniciaste sesión en este dispositivo, el panel se cargará automáticamente.</div>
+    </div>
+  </div>
 
   <!-- APP -->
   <div id="appScreen">
@@ -589,6 +651,9 @@
         </a>
         <button class="btn-header accent" id="nuevoProductoBtn">+ Producto</button>
         <button class="btn-header" id="gestionCatsBtn">🏷️ Categorías</button>
+        <button class="btn-header" id="gestionBannersBtn">🖼 Banners</button>
+        <span id="adminUserBadge" class="user-badge" style="display:none"></span>
+        <button class="btn-header" id="adminLogoutBtn" style="background:#c0392b; display:none">Cerrar sesión</button>
       </div>
     </header>
 
@@ -618,6 +683,18 @@
         <div id="catsList"></div>
       </div>
 
+      <!-- Banners -->
+      <div class="card-categorias" id="cardBanners" style="display:none">
+        <div class="cats-header">
+          <span style="font-size:13px;font-weight:500;color:var(--verde)">🖼 Gestión de banners</span>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="btn-add" id="nuevoBannerBtn" style="padding:6px 14px;font-size:12px">+ Nuevo banner</button>
+            <button class="cats-cerrar" id="bannersCerrar">✕</button>
+          </div>
+        </div>
+        <div id="bannersList"></div>
+      </div>
+
       <!-- Barra -->
       <div class="barra">
         <div class="barra-buscar">
@@ -640,6 +717,7 @@
               <th>Nombre</th>
               <th>Categoría</th>
               <th>Descripción</th>
+              <th>Stock</th>
               <th>Precio</th>
               <th style="width:90px">Acciones</th>
             </tr>
@@ -683,6 +761,29 @@
       </div>
 
       <div class="form-group">
+        <label>Beneficios</label>
+        <textarea id="formBenefits" placeholder="Ej: Energía, digestión, inmunidad…"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Ingredientes</label>
+        <textarea id="formIngredients" placeholder="Ej: Spirulina, maca, jengibre…"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Modo de uso</label>
+        <textarea id="formUsage" placeholder="Ej: 1 cucharada por día…"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Stock</label>
+        <select id="formStock">
+          <option value="in">Disponible</option>
+          <option value="out">Sin stock</option>
+        </select>
+      </div>
+
+      <div class="form-group">
         <label>Imagen del producto</label>
         <input type="file" id="formImagen" accept="image/*" style="display:none" />
         <div class="img-preview" id="imgPreview">
@@ -719,6 +820,7 @@
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
     import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, getIdTokenResult } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
     const CLOUDINARY_CLOUD = 'dtpx63icx';
     const CLOUDINARY_PRESET = 'tienda-ross';
@@ -734,6 +836,77 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    const loginScreen = document.getElementById('loginScreen');
+    const appScreen = document.getElementById('appScreen');
+    const adminEmail = document.getElementById('adminEmail');
+    const adminPass = document.getElementById('adminPass');
+    const adminLoginBtn = document.getElementById('adminLoginBtn');
+    const adminLogoutBtn = document.getElementById('adminLogoutBtn');
+    const adminUserBadge = document.getElementById('adminUserBadge');
+
+    appScreen.style.display = 'none';
+
+    onAuthStateChanged(auth, async user => {
+      if (user) {
+        try {
+          const token = await getIdTokenResult(user);
+          const isAdmin = !!(token?.claims && token.claims.admin);
+          if (!isAdmin) {
+            mostrarToast('Acceso denegado: usuario sin permisos de administrador', true);
+            await signOut(auth);
+            return;
+          }
+        } catch (e) {
+          console.error('Error verificando claims:', e);
+          mostrarToast('Error verificando permisos', true);
+          await signOut(auth);
+          return;
+        }
+
+        loginScreen.style.display = 'none';
+        appScreen.style.display = 'block';
+        adminUserBadge.textContent = user.email || 'Admin';
+        adminUserBadge.style.display = 'inline-flex';
+        adminLogoutBtn.style.display = 'inline-flex';
+        if (!window.productosLoaded) {
+          await cargarProductos();
+          window.productosLoaded = true;
+        }
+      } else {
+        appScreen.style.display = 'none';
+        loginScreen.style.display = 'grid';
+        adminUserBadge.style.display = 'none';
+        adminLogoutBtn.style.display = 'none';
+      }
+    });
+
+    adminLoginBtn.addEventListener('click', async () => {
+      const email = adminEmail.value.trim();
+      const pass = adminPass.value;
+      if (!email || !pass) {
+        mostrarToast('Completá email y contraseña', true);
+        return;
+      }
+      adminLoginBtn.disabled = true;
+      adminLoginBtn.textContent = 'Ingresando…';
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+      } catch (e) {
+        mostrarToast('Error al iniciar sesión: ' + e.message, true);
+      } finally {
+        adminLoginBtn.disabled = false;
+        adminLoginBtn.textContent = 'Iniciar sesión';
+      }
+    });
+
+    adminLogoutBtn.addEventListener('click', async () => {
+      await signOut(auth);
+      adminEmail.value = '';
+      adminPass.value = '';
+      mostrarToast('Sesión cerrada');
+    });
 
     let productos = [];
     let editandoId = null;
@@ -775,7 +948,11 @@
       let lista = productos;
       if (busqueda) lista = lista.filter(p =>
         p.name?.toLowerCase().includes(busqueda) ||
-        p.category?.toLowerCase().includes(busqueda));
+        p.category?.toLowerCase().includes(busqueda) ||
+        p.description?.toLowerCase().includes(busqueda) ||
+        p.benefits?.toLowerCase().includes(busqueda) ||
+        p.ingredients?.toLowerCase().includes(busqueda) ||
+        p.usage?.toLowerCase().includes(busqueda));
 
       if (!lista.length) {
         tbody.innerHTML = `<tr><td colspan="6" class="tabla-vacia">No hay productos${busqueda ? ' con esa búsqueda' : ''}.</td></tr>`;
@@ -793,6 +970,7 @@
             <td><div class="nombre-col">${p.name || '–'}</div></td>
             <td><span class="badge">${p.category || '–'}</span></td>
             <td><div class="desc-col">${p.description || '–'}</div></td>
+            <td><div class="badge" style="background:${p.stock === 'out' ? '#fdecea' : '#e8f5e9'}; color:${p.stock === 'out' ? '#c0392b' : '#2e7d32'};">${p.stock === 'out' ? 'Sin stock' : 'Disponible'}</div></td>
             <td><div class="precio-col">${precio}</div></td>
             <td>
               <div class="acciones">
@@ -835,6 +1013,10 @@
       document.getElementById('formCategoria').value = '';
       document.getElementById('formPrecio').value = '';
       document.getElementById('formDescripcion').value = '';
+      document.getElementById('formBenefits').value = '';
+      document.getElementById('formIngredients').value = '';
+      document.getElementById('formUsage').value = '';
+      document.getElementById('formStock').value = 'in';
       document.getElementById('imgPreview').innerHTML = `
         <span class="upload-icon">📷</span>
         <label class="upload-label" for="formImagen">Subir imagen</label>
@@ -864,6 +1046,10 @@
       document.getElementById('formCategoria').value = p.category || '';
       document.getElementById('formPrecio').value = p.price || '';
       document.getElementById('formDescripcion').value = p.description || '';
+      document.getElementById('formBenefits').value = p.benefits || '';
+      document.getElementById('formIngredients').value = p.ingredients || '';
+      document.getElementById('formUsage').value = p.usage || '';
+      document.getElementById('formStock').value = p.stock || 'in';
       const preview = document.getElementById('imgPreview');
       if (p.image) {
         preview.innerHTML = `
@@ -900,6 +1086,10 @@
       const categoria = document.getElementById('formCategoria').value.trim();
       const precio = Number(document.getElementById('formPrecio').value) || 0;
       const descripcion = document.getElementById('formDescripcion').value.trim();
+      const benefits = document.getElementById('formBenefits').value.trim();
+      const ingredients = document.getElementById('formIngredients').value.trim();
+      const usage = document.getElementById('formUsage').value.trim();
+      const stock = document.getElementById('formStock').value;
 
       if (!nombre || !categoria) { mostrarToast('Nombre y categoría son obligatorios', true); return; }
 
@@ -923,7 +1113,18 @@
           imagenUrl = data.secure_url;
         }
 
-        const data = { name: nombre, category: categoria, price: precio, description: descripcion, image: imagenUrl, updatedAt: serverTimestamp() };
+        const data = {
+          name: nombre,
+          category: categoria,
+          price: precio,
+          description: descripcion,
+          image: imagenUrl,
+          benefits,
+          ingredients,
+          usage,
+          stock,
+          updatedAt: serverTimestamp()
+        };
 
         if (editandoId) {
           await updateDoc(doc(db, 'productos', editandoId), data);
@@ -1043,6 +1244,226 @@
         });
       });
     }
+
+    // ── Banners ──
+    let banners = [];
+    let editandoBannerId = null;
+    let imagenBannerNueva = null;
+    let imagenBannerUrlAnterior = null;
+
+    document.getElementById('gestionBannersBtn').addEventListener('click', () => {
+      const card = document.getElementById('cardBanners');
+      card.style.display = card.style.display === 'none' ? 'block' : 'none';
+      if (card.style.display === 'block') cargarBanners();
+    });
+
+    document.getElementById('bannersCerrar').addEventListener('click', () => {
+      document.getElementById('cardBanners').style.display = 'none';
+    });
+
+    async function cargarBanners() {
+      try {
+        const snap = await getDocs(collection(db, 'banners'));
+        banners = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+          .sort((a, b) => (a.orden || 0) - (b.orden || 0));
+        renderBanners();
+      } catch (e) {
+        mostrarToast('Error al cargar banners', true);
+      }
+    }
+
+    function renderBanners() {
+      const lista = document.getElementById('bannersList');
+      if (!banners.length) {
+        lista.innerHTML = `<div style="padding:16px 18px;font-size:13px;color:var(--texto-suave)">No hay banners. Creá uno con el botón + Nuevo banner.</div>`;
+        return;
+      }
+      lista.innerHTML = banners.map(b => `
+        <div class="cat-fila" style="align-items:flex-start;gap:14px">
+          <div style="width:90px;height:52px;border-radius:6px;overflow:hidden;flex-shrink:0;background:${b.color||'#3a5a40'};display:flex;align-items:center;justify-content:center">
+            ${b.imagen ? `<img src="${b.imagen}" style="width:100%;height:100%;object-fit:cover">` : '<span style="font-size:20px">🖼</span>'}
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:14px;font-weight:500">${b.titulo || '(sin título)'}</div>
+            <div style="font-size:12px;color:var(--texto-suave)">${b.subtitulo || ''}</div>
+            <div style="font-size:11px;margin-top:3px">
+              <span style="background:${b.activo!==false?'#e8f5e9':'#fce4ec'};color:${b.activo!==false?'#2e7d32':'#c62828'};padding:2px 8px;border-radius:10px">
+                ${b.activo !== false ? 'Activo' : 'Inactivo'}
+              </span>
+              <span style="color:var(--texto-suave);margin-left:8px">Orden: ${b.orden || 0}</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;flex-shrink:0">
+            <button class="btn-icon" data-id="${b.id}" data-accion="editar-banner">✏️</button>
+            <button class="btn-icon eliminar" data-id="${b.id}" data-accion="eliminar-banner">🗑️</button>
+          </div>
+        </div>`).join('');
+
+      lista.querySelectorAll('[data-accion="editar-banner"]').forEach(btn => {
+        btn.addEventListener('click', () => abrirModalBanner(btn.dataset.id));
+      });
+      lista.querySelectorAll('[data-accion="eliminar-banner"]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          if (!confirm('¿Eliminar este banner?')) return;
+          await deleteDoc(doc(db, 'banners', btn.dataset.id));
+          mostrarToast('Banner eliminado');
+          cargarBanners();
+        });
+      });
+    }
+
+    document.getElementById('nuevoBannerBtn').addEventListener('click', () => abrirModalBanner(null));
+
+    function abrirModalBanner(id) {
+      editandoBannerId = id;
+      imagenBannerNueva = null;
+      const b = id ? banners.find(x => x.id === id) : null;
+      imagenBannerUrlAnterior = b?.imagen || '';
+
+      document.getElementById('bannerModalTitulo').textContent = id ? 'Editar banner' : 'Nuevo banner';
+      document.getElementById('bFormTitulo').value = b?.titulo || '';
+      document.getElementById('bFormSubtitulo').value = b?.subtitulo || '';
+      document.getElementById('bFormTag').value = b?.tag || '';
+      document.getElementById('bFormColor').value = b?.color || '#3a5a40';
+      document.getElementById('bFormOrden').value = b?.orden ?? banners.length;
+      document.getElementById('bFormActivo').checked = b?.activo !== false;
+
+      const preview = document.getElementById('bImgPreview');
+      if (b?.imagen) {
+        preview.innerHTML = `<img src="${b.imagen}" style="width:100%;height:100%;object-fit:cover;border-radius:8px">`;
+        preview.style.cursor = 'pointer';
+        preview.onclick = () => document.getElementById('bFormImagen').click();
+      } else {
+        preview.innerHTML = `<span style="font-size:24px">🖼</span><label class="upload-label" for="bFormImagen">Subir imagen</label>`;
+        preview.onclick = null;
+      }
+
+      document.getElementById('bannerModalOverlay').classList.add('visible');
+    }
+
+    document.getElementById('bFormImagen').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      imagenBannerNueva = file;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const p = document.getElementById('bImgPreview');
+        p.innerHTML = `<img src="${ev.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:8px">`;
+        p.style.cursor = 'pointer';
+        p.onclick = () => document.getElementById('bFormImagen').click();
+      };
+      reader.readAsDataURL(file);
+    });
+
+    document.getElementById('bannerModalCerrar').addEventListener('click', () => {
+      document.getElementById('bannerModalOverlay').classList.remove('visible');
+    });
+    document.getElementById('bannerModalCancelar').addEventListener('click', () => {
+      document.getElementById('bannerModalOverlay').classList.remove('visible');
+    });
+
+    document.getElementById('bGuardarBtn').addEventListener('click', async () => {
+      const titulo = document.getElementById('bFormTitulo').value.trim();
+      const btn = document.getElementById('bGuardarBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Guardando…';
+
+      try {
+        let imagenUrl = imagenBannerUrlAnterior || '';
+        if (imagenBannerNueva) {
+          const formData = new FormData();
+          formData.append('file', imagenBannerNueva);
+          formData.append('upload_preset', 'tienda-ross');
+          const res = await fetch(`https://api.cloudinary.com/v1_1/dtpx63icx/image/upload`, { method: 'POST', body: formData });
+          const data = await res.json();
+          if (!data.secure_url) throw new Error('Error Cloudinary');
+          imagenUrl = data.secure_url;
+        }
+
+        const data = {
+          titulo,
+          subtitulo: document.getElementById('bFormSubtitulo').value.trim(),
+          tag: document.getElementById('bFormTag').value.trim(),
+          color: document.getElementById('bFormColor').value,
+          orden: Number(document.getElementById('bFormOrden').value) || 0,
+          activo: document.getElementById('bFormActivo').checked,
+          imagen: imagenUrl,
+          updatedAt: serverTimestamp()
+        };
+
+        if (editandoBannerId) {
+          await updateDoc(doc(db, 'banners', editandoBannerId), data);
+          mostrarToast('Banner actualizado ✓');
+        } else {
+          data.createdAt = serverTimestamp();
+          await addDoc(collection(db, 'banners'), data);
+          mostrarToast('Banner creado ✓');
+        }
+
+        document.getElementById('bannerModalOverlay').classList.remove('visible');
+        cargarBanners();
+      } catch (e) {
+        mostrarToast('Error al guardar banner', true);
+        console.error(e);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Guardar banner';
+      }
+    });
+
   </script>
+
+  <!-- MODAL BANNER -->
+  <div class="modal-overlay" id="bannerModalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="bannerModalTitulo">Nuevo banner</h2>
+        <button class="modal-cerrar" id="bannerModalCerrar">✕</button>
+      </div>
+
+      <div class="form-group">
+        <label>Título</label>
+        <input type="text" id="bFormTitulo" placeholder="Ej: Ofertas de temporada" />
+      </div>
+      <div class="form-group">
+        <label>Subtítulo</label>
+        <input type="text" id="bFormSubtitulo" placeholder="Ej: Hasta 30% de descuento en productos seleccionados" />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Tag / etiqueta</label>
+          <input type="text" id="bFormTag" placeholder="Ej: OFERTA, NUEVO" />
+        </div>
+        <div class="form-group">
+          <label>Color de fondo</label>
+          <input type="color" id="bFormColor" value="#3a5a40" style="height:42px;padding:4px 8px" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Orden (número)</label>
+          <input type="number" id="bFormOrden" placeholder="0" min="0" />
+        </div>
+        <div class="form-group" style="display:flex;align-items:center;gap:10px;padding-top:22px">
+          <input type="checkbox" id="bFormActivo" style="width:18px;height:18px;accent-color:var(--verde)" />
+          <label style="text-transform:none;font-size:14px;letter-spacing:0">Activo (visible en tienda)</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Imagen del banner</label>
+        <input type="file" id="bFormImagen" accept="image/*" style="display:none" />
+        <div class="img-preview" id="bImgPreview" style="height:120px">
+          <span style="font-size:24px">🖼</span>
+          <label class="upload-label" for="bFormImagen">Subir imagen</label>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancelar" id="bannerModalCancelar">Cancelar</button>
+        <button class="btn-guardar" id="bGuardarBtn">Guardar banner</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

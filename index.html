@@ -692,6 +692,139 @@
 
     .toast.visible { transform: translateX(-50%) translateY(0); }
 
+    /* ── CARRUSEL ── */
+    .carrusel-wrap {
+      position: relative;
+      overflow: hidden;
+      background: var(--verde);
+      max-height: 320px;
+    }
+
+    .carrusel-track {
+      display: flex;
+      transition: transform 0.45s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    .carrusel-slide {
+      min-width: 100%;
+      position: relative;
+      aspect-ratio: 16/5;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    @media (max-width: 600px) {
+      .carrusel-slide { aspect-ratio: 4/3; }
+      .carrusel-wrap { max-height: none; }
+    }
+
+    .carrusel-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      inset: 0;
+    }
+
+    .carrusel-slide-content {
+      position: relative;
+      z-index: 2;
+      padding: 32px 48px;
+      max-width: 600px;
+    }
+
+    .carrusel-slide-bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.1) 60%, transparent 100%);
+      z-index: 1;
+    }
+
+    .carrusel-tag {
+      display: inline-block;
+      background: var(--verde-claro);
+      color: var(--verde);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 30px;
+      margin-bottom: 10px;
+    }
+
+    .carrusel-titulo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(22px, 4vw, 38px);
+      font-weight: 600;
+      color: #fff;
+      line-height: 1.15;
+      margin-bottom: 8px;
+    }
+
+    .carrusel-subtitulo {
+      font-size: clamp(13px, 1.8vw, 16px);
+      color: rgba(255,255,255,0.85);
+      font-weight: 300;
+      line-height: 1.5;
+    }
+
+    .carrusel-btn-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 10;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      border: 1.5px solid rgba(255,255,255,0.35);
+      color: #fff;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+      backdrop-filter: blur(4px);
+    }
+
+    .carrusel-btn-nav:hover { background: rgba(255,255,255,0.35); }
+    .carrusel-prev { left: 14px; }
+    .carrusel-next { right: 14px; }
+
+    .carrusel-dots {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 6px;
+      z-index: 10;
+    }
+
+    .carrusel-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.45);
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      padding: 0;
+    }
+
+    .carrusel-dot.activo {
+      background: #fff;
+      width: 20px;
+      border-radius: 4px;
+    }
+
+    .carrusel-vacio {
+      display: none;
+    }
+
     /* ── MODAL PRODUCTO ── */
     .producto-overlay {
       position: fixed;
@@ -879,8 +1012,16 @@
     </div>
   </div>
 
-  <!-- BANNER -->
-  <div class="banner">
+  <!-- CARRUSEL -->
+  <div class="carrusel-wrap" id="carruselWrap">
+    <div class="carrusel-track" id="carruselTrack"></div>
+    <button class="carrusel-btn-nav carrusel-prev" id="carruselPrev">‹</button>
+    <button class="carrusel-btn-nav carrusel-next" id="carruselNext">›</button>
+    <div class="carrusel-dots" id="carruselDots"></div>
+  </div>
+
+  <!-- BANNER ESTÁTICO (fallback si no hay banners) -->
+  <div class="banner" id="bannerFallback" style="display:none">
     <div class="banner-content">
       <h1>Lo mejor de la naturaleza</h1>
       <p>Productos naturales seleccionados para tu bienestar y el de tu familia. Calidad y confianza en cada compra.</p>
@@ -1040,7 +1181,9 @@
         lista = lista.filter(p =>
           p.name?.toLowerCase().includes(busqueda) ||
           p.description?.toLowerCase().includes(busqueda) ||
-          p.benefits?.toLowerCase().includes(busqueda));
+          p.benefits?.toLowerCase().includes(busqueda) ||
+          p.ingredients?.toLowerCase().includes(busqueda) ||
+          p.usage?.toLowerCase().includes(busqueda));
 
       if (!lista.length) {
         grid.innerHTML = `<div class="sin-resultados">
@@ -1144,10 +1287,13 @@
         document.getElementById(txt).textContent = val || '';
       });
 
+      const sinStock = p.stock === 'out';
       const btnAgregar = document.getElementById('pmAgregar');
-      btnAgregar.textContent = enCarrito ? '✓ Agregado' : '+ Agregar al carrito';
+      btnAgregar.textContent = sinStock ? 'Sin stock' : enCarrito ? '✓ Agregado' : '+ Agregar al carrito';
       btnAgregar.className = `agregar-btn${enCarrito ? ' en-carrito' : ''}`;
+      btnAgregar.disabled = sinStock;
       btnAgregar.onclick = () => {
+        if (sinStock) return;
         agregarAlCarrito({ id: p.id, nombre: p.name, precio: Number(p.price || 0), imagen: p.image || '' });
         btnAgregar.textContent = '✓ Agregado';
         btnAgregar.className = 'agregar-btn en-carrito';
@@ -1274,10 +1420,91 @@
       setTimeout(() => t.classList.remove('visible'), 2500);
     }
 
+    // ── Carrusel ──
+    let banners = [];
+    let carruselActual = 0;
+    let carruselTimer = null;
+
+    async function cargarBanners() {
+      try {
+        const snap = await getDocs(collection(db, 'banners'));
+        banners = snap.docs
+          .map(d => ({ id: d.id, ...d.data() }))
+          .filter(b => b.activo !== false)
+          .sort((a, b) => (a.orden || 0) - (b.orden || 0));
+
+        if (!banners.length) {
+          document.getElementById('carruselWrap').style.display = 'none';
+          document.getElementById('bannerFallback').style.display = 'block';
+          return;
+        }
+
+        renderCarrusel();
+      } catch (e) {
+        document.getElementById('carruselWrap').style.display = 'none';
+        document.getElementById('bannerFallback').style.display = 'block';
+      }
+    }
+
+    function renderCarrusel() {
+      const track = document.getElementById('carruselTrack');
+      const dots = document.getElementById('carruselDots');
+
+      track.innerHTML = banners.map(b => `
+        <div class="carrusel-slide" style="background: ${b.color || '#3a5a40'}">
+          ${b.imagen ? `<img src="${b.imagen}" alt="${b.titulo || ''}">` : ''}
+          ${b.imagen ? '<div class="carrusel-slide-bg"></div>' : ''}
+          <div class="carrusel-slide-content">
+            ${b.tag ? `<div class="carrusel-tag">${b.tag}</div>` : ''}
+            ${b.titulo ? `<div class="carrusel-titulo">${b.titulo}</div>` : ''}
+            ${b.subtitulo ? `<div class="carrusel-subtitulo">${b.subtitulo}</div>` : ''}
+          </div>
+        </div>`).join('');
+
+      dots.innerHTML = banners.map((_, i) =>
+        `<button class="carrusel-dot ${i === 0 ? 'activo' : ''}" data-i="${i}"></button>`
+      ).join('');
+
+      dots.querySelectorAll('.carrusel-dot').forEach(d => {
+        d.addEventListener('click', () => irASlide(Number(d.dataset.i)));
+      });
+
+      // Ocultar flechas si hay solo 1
+      if (banners.length <= 1) {
+        document.getElementById('carruselPrev').style.display = 'none';
+        document.getElementById('carruselNext').style.display = 'none';
+      }
+
+      iniciarAutoplay();
+    }
+
+    function irASlide(idx) {
+      carruselActual = (idx + banners.length) % banners.length;
+      document.getElementById('carruselTrack').style.transform = `translateX(-${carruselActual * 100}%)`;
+      document.querySelectorAll('.carrusel-dot').forEach((d, i) => {
+        d.classList.toggle('activo', i === carruselActual);
+      });
+      reiniciarAutoplay();
+    }
+
+    function iniciarAutoplay() {
+      if (banners.length <= 1) return;
+      carruselTimer = setInterval(() => irASlide(carruselActual + 1), 4500);
+    }
+
+    function reiniciarAutoplay() {
+      clearInterval(carruselTimer);
+      iniciarAutoplay();
+    }
+
+    document.getElementById('carruselPrev').addEventListener('click', () => irASlide(carruselActual - 1));
+    document.getElementById('carruselNext').addEventListener('click', () => irASlide(carruselActual + 1));
+
     // ── Init ──
     guardarCarrito();
     renderCarrito();
     cargarProductos();
+    cargarBanners();
   </script>
 </body>
 </html>

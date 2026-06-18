@@ -254,6 +254,11 @@
 
     .tabla-vacia { text-align: center; padding: 48px; color: var(--texto-suave); }
 
+    .th-sort { cursor: pointer; user-select: none; }
+    .th-sort:hover { color: var(--verde-claro); }
+    .sort-icon { margin-left: 4px; opacity: 0.5; font-style: normal; font-size: 10px; }
+    .th-sort.activo .sort-icon { opacity: 1; }
+
     /* ── MODAL ── */
     .modal-overlay {
       position: fixed;
@@ -569,11 +574,118 @@
     .btn-cat-renombrar:hover { background: #2e4a34; }
     .btn-cat-renombrar:disabled { opacity: 0.5; cursor: not-allowed; }
 
+    /* ── PEDIDOS ── */
+    .pedidos-filtros {
+      display: flex;
+      gap: 6px;
+      padding: 14px 18px;
+      background: var(--verde-muy-claro);
+      border-bottom: 1px solid var(--crema-oscuro);
+      flex-wrap: wrap;
+    }
+    .filtro-btn {
+      padding: 6px 14px;
+      border-radius: 30px;
+      border: 1.5px solid var(--crema-oscuro);
+      background: var(--blanco);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      cursor: pointer;
+      color: var(--texto-suave);
+      transition: all 0.2s;
+    }
+    .filtro-btn.activo { background: var(--verde); color: var(--blanco); border-color: var(--verde); font-weight: 500; }
+    .filtro-btn:hover:not(.activo) { border-color: var(--verde); color: var(--verde); }
+    .pedidos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+      padding: 18px;
+    }
+    .pedido-card {
+      background: var(--blanco);
+      border-radius: var(--radio);
+      box-shadow: var(--sombra);
+      overflow: hidden;
+      border-left: 4px solid var(--crema-oscuro);
+    }
+    .pedido-card.estado-nuevo { border-left-color: var(--rojo); }
+    .pedido-card.estado-en-proceso { border-left-color: #e67e22; }
+    .pedido-card.estado-entregado { border-left-color: #27ae60; opacity: 0.75; }
+    .pedido-cabecera {
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      border-bottom: 1px solid var(--crema-oscuro);
+    }
+    .pedido-nombre { font-size: 15px; font-weight: 500; margin-bottom: 3px; }
+    .pedido-meta { font-size: 12px; color: var(--texto-suave); }
+    .estado-badge {
+      padding: 3px 10px;
+      border-radius: 30px;
+      font-size: 11px;
+      font-weight: 500;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .estado-badge.nuevo { background: var(--rojo-claro); color: var(--rojo); }
+    .estado-badge.en-proceso { background: #fef3e2; color: #e67e22; }
+    .estado-badge.entregado { background: #e8f5e9; color: #27ae60; }
+    .pedido-items-list {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--crema-oscuro);
+    }
+    .pedido-item-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      padding: 3px 0;
+    }
+    .pedido-nota { font-size: 12px; color: var(--texto-suave); margin-top: 8px; font-style: italic; }
+    .pedido-footer-row {
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .pedido-total { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: var(--verde); }
+    .pedido-acciones { display: flex; gap: 6px; align-items: center; }
+    .btn-avanzar {
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1.5px solid var(--crema-oscuro);
+      background: var(--blanco);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 500;
+    }
+    .btn-avanzar:hover { background: var(--verde); color: var(--blanco); border-color: var(--verde); }
+    .btn-wsp-link {
+      padding: 6px 12px;
+      border-radius: 8px;
+      background: #25d366;
+      color: var(--blanco);
+      font-size: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .btn-wsp-link:hover { background: #1fb855; }
+    .pedidos-vacio { padding: 40px; text-align: center; color: var(--texto-suave); font-size: 14px; grid-column: 1/-1; }
+
     @media (max-width: 600px) {
       .container { padding: 16px 14px 60px; }
       .form-row { grid-template-columns: 1fr; }
       th:nth-child(3), td:nth-child(3),
       th:nth-child(4), td:nth-child(4) { display: none; }
+      .pedidos-grid { grid-template-columns: 1fr; padding: 12px; }
     }
 
     #loginScreen {
@@ -652,6 +764,7 @@
         <button class="btn-header accent" id="nuevoProductoBtn">+ Producto</button>
         <button class="btn-header" id="gestionCatsBtn">🏷️ Categorías</button>
         <button class="btn-header" id="gestionBannersBtn">🖼 Banners</button>
+        <button class="btn-header" id="pedidosBtn">📋 Pedidos</button>
         <span id="adminUserBadge" class="user-badge" style="display:none"></span>
         <button class="btn-header" id="adminLogoutBtn" style="background:#c0392b; display:none">Cerrar sesión</button>
       </div>
@@ -681,6 +794,21 @@
           <button class="cats-cerrar" id="catsCerrar">✕</button>
         </div>
         <div id="catsList"></div>
+      </div>
+
+      <!-- Pedidos -->
+      <div class="card-categorias" id="cardPedidos" style="display:none">
+        <div class="cats-header">
+          <span style="font-size:13px;font-weight:500;color:var(--verde)">📋 Pedidos</span>
+          <button class="cats-cerrar" id="pedidosCerrar">✕</button>
+        </div>
+        <div class="pedidos-filtros">
+          <button class="filtro-btn activo" data-filtro="todos">Todos</button>
+          <button class="filtro-btn" data-filtro="nuevo">Nuevos</button>
+          <button class="filtro-btn" data-filtro="en-proceso">En proceso</button>
+          <button class="filtro-btn" data-filtro="entregado">Entregados</button>
+        </div>
+        <div class="pedidos-grid" id="pedidosGrid"></div>
       </div>
 
       <!-- Banners -->
@@ -714,11 +842,11 @@
           <thead>
             <tr>
               <th style="width:60px">Foto</th>
-              <th>Nombre</th>
-              <th>Categoría</th>
+              <th class="th-sort" data-col="name">Nombre <i class="sort-icon">↕</i></th>
+              <th class="th-sort" data-col="category">Categoría <i class="sort-icon">↕</i></th>
               <th>Descripción</th>
               <th>Stock</th>
-              <th>Precio</th>
+              <th class="th-sort" data-col="price">Precio <i class="sort-icon">↕</i></th>
               <th style="width:90px">Acciones</th>
             </tr>
           </thead>
@@ -819,7 +947,7 @@
 
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-    import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+    import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, onSnapshot, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
     import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, getIdTokenResult } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
     const CLOUDINARY_CLOUD = 'dtpx63icx';
@@ -909,6 +1037,8 @@
     });
 
     let productos = [];
+    let sortCol = null;
+    let sortDir = 1;
     let editandoId = null;
     let eliminandoId = null;
     let imagenNueva = null;
@@ -954,6 +1084,14 @@
         p.ingredients?.toLowerCase().includes(busqueda) ||
         p.usage?.toLowerCase().includes(busqueda));
 
+      if (sortCol) {
+        lista = [...lista].sort((a, b) => {
+          const av = sortCol === 'price' ? (Number(a[sortCol]) || 0) : (a[sortCol] || '').toLowerCase();
+          const bv = sortCol === 'price' ? (Number(b[sortCol]) || 0) : (b[sortCol] || '').toLowerCase();
+          return av < bv ? -sortDir : av > bv ? sortDir : 0;
+        });
+      }
+
       if (!lista.length) {
         tbody.innerHTML = `<tr><td colspan="6" class="tabla-vacia">No hay productos${busqueda ? ' con esa búsqueda' : ''}.</td></tr>`;
         return;
@@ -971,7 +1109,7 @@
             <td><span class="badge">${p.category || '–'}</span></td>
             <td><div class="desc-col">${p.description || '–'}</div></td>
             <td><div class="badge" style="background:${p.stock === 'out' ? '#fdecea' : '#e8f5e9'}; color:${p.stock === 'out' ? '#c0392b' : '#2e7d32'};">${p.stock === 'out' ? 'Sin stock' : 'Disponible'}</div></td>
-            <td><div class="precio-col">${precio}</div></td>
+            <td><div class="precio-col" ${!p.price ? 'style="color:var(--rojo);font-size:13px;font-family:\'DM Sans\',sans-serif;font-weight:500"' : ''}>${!p.price ? 'Sin precio' : precio}</div></td>
             <td>
               <div class="acciones">
                 <button class="btn-icon" data-id="${p.id}" data-accion="editar" title="Editar">✏️</button>
@@ -992,6 +1130,25 @@
     document.getElementById('adminBuscador').addEventListener('input', e => {
       busqueda = e.target.value.toLowerCase().trim();
       renderTabla();
+    });
+
+    document.querySelectorAll('.th-sort').forEach(th => {
+      th.addEventListener('click', () => {
+        const col = th.dataset.col;
+        if (sortCol === col) {
+          sortDir *= -1;
+        } else {
+          sortCol = col;
+          sortDir = 1;
+        }
+        document.querySelectorAll('.th-sort').forEach(t => {
+          t.classList.remove('activo');
+          t.querySelector('.sort-icon').textContent = '↕';
+        });
+        th.classList.add('activo');
+        th.querySelector('.sort-icon').textContent = sortDir === 1 ? '↑' : '↓';
+        renderTabla();
+      });
     });
 
     // ── Modal ──
@@ -1311,6 +1468,110 @@
         });
       });
     }
+
+    // ── Pedidos ──
+    let filtroPedidos = 'todos';
+    let pedidosUnsubscribe = null;
+    let pedidosData = [];
+
+    const ESTADO_LABEL = { 'nuevo': 'Nuevo', 'en-proceso': 'En proceso', 'entregado': 'Entregado' };
+    const ESTADO_SIGUIENTE = { 'nuevo': 'en-proceso', 'en-proceso': 'entregado' };
+    const ESTADO_BTN_LABEL = { 'nuevo': 'En proceso →', 'en-proceso': 'Entregado ✓' };
+
+    function timeAgo(ts) {
+      if (!ts?.toMillis) return '';
+      const diff = Math.floor((Date.now() - ts.toMillis()) / 60000);
+      if (diff < 1) return 'ahora';
+      if (diff < 60) return `hace ${diff} min`;
+      if (diff < 1440) return `hace ${Math.floor(diff / 60)} h`;
+      return `hace ${Math.floor(diff / 1440)} d`;
+    }
+
+    function renderPedidos(lista) {
+      const grid = document.getElementById('pedidosGrid');
+      const filtrada = filtroPedidos === 'todos' ? lista : lista.filter(p => p.estado === filtroPedidos);
+      if (!filtrada.length) {
+        grid.innerHTML = `<div class="pedidos-vacio">No hay pedidos${filtroPedidos !== 'todos' ? ' en este estado' : ''}.</div>`;
+        return;
+      }
+      grid.innerHTML = filtrada.map(p => {
+        const sigEstado = ESTADO_SIGUIENTE[p.estado];
+        return `
+          <div class="pedido-card estado-${p.estado}">
+            <div class="pedido-cabecera">
+              <div>
+                <div class="pedido-nombre">${p.nombre}</div>
+                <div class="pedido-meta">📍 ${p.direccion} · ${timeAgo(p.createdAt)}</div>
+              </div>
+              <span class="estado-badge ${p.estado}">${ESTADO_LABEL[p.estado] || p.estado}</span>
+            </div>
+            <div class="pedido-items-list">
+              ${(p.items || []).map(i => `
+                <div class="pedido-item-row">
+                  <span>${i.nombre} x${i.cantidad}</span>
+                  <span>$${(i.precio * i.cantidad).toLocaleString('es-AR')}</span>
+                </div>`).join('')}
+              ${p.notas ? `<div class="pedido-nota">📝 ${p.notas}</div>` : ''}
+            </div>
+            <div class="pedido-footer-row">
+              <div class="pedido-total">$${(p.total || 0).toLocaleString('es-AR')}</div>
+              <div class="pedido-acciones">
+                ${sigEstado ? `<button class="btn-avanzar" data-id="${p.id}" data-estado="${sigEstado}">${ESTADO_BTN_LABEL[p.estado]}</button>` : ''}
+                ${p.telefono ? `<a class="btn-wsp-link" href="https://wa.me/54${p.telefono.replace(/\D/g,'')}" target="_blank">WhatsApp ↗</a>` : ''}
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+
+      grid.querySelectorAll('.btn-avanzar').forEach(btn => {
+        btn.addEventListener('click', () => cambiarEstadoPedido(btn.dataset.id, btn.dataset.estado));
+      });
+    }
+
+    async function cambiarEstadoPedido(id, nuevoEstado) {
+      try {
+        await updateDoc(doc(db, 'pedidos', id), { estado: nuevoEstado });
+        mostrarToast('Pedido actualizado ✓');
+      } catch(e) {
+        mostrarToast('Error al actualizar', true);
+      }
+    }
+
+    function suscribirPedidos() {
+      pedidosUnsubscribe = onSnapshot(
+        query(collection(db, 'pedidos'), orderBy('createdAt', 'desc')),
+        snap => {
+          pedidosData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          renderPedidos(pedidosData);
+        },
+        err => { mostrarToast('Error cargando pedidos', true); console.error(err); }
+      );
+    }
+
+    document.getElementById('pedidosBtn').addEventListener('click', () => {
+      const card = document.getElementById('cardPedidos');
+      if (card.style.display !== 'none') {
+        card.style.display = 'none';
+        if (pedidosUnsubscribe) { pedidosUnsubscribe(); pedidosUnsubscribe = null; }
+      } else {
+        card.style.display = 'block';
+        suscribirPedidos();
+      }
+    });
+
+    document.getElementById('pedidosCerrar').addEventListener('click', () => {
+      document.getElementById('cardPedidos').style.display = 'none';
+      if (pedidosUnsubscribe) { pedidosUnsubscribe(); pedidosUnsubscribe = null; }
+    });
+
+    document.querySelectorAll('.filtro-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        filtroPedidos = btn.dataset.filtro;
+        document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('activo'));
+        btn.classList.add('activo');
+        renderPedidos(pedidosData);
+      });
+    });
 
     document.getElementById('nuevoBannerBtn').addEventListener('click', () => abrirModalBanner(null));
 

@@ -398,6 +398,14 @@
       border-color: var(--verde);
     }
 
+    .producto-card.sin-stock {
+      opacity: 0.55;
+    }
+    .producto-card.sin-stock .producto-img,
+    .producto-card.sin-stock .producto-img-placeholder {
+      filter: grayscale(40%);
+    }
+
     .qty-controls {
       display: flex;
       align-items: center;
@@ -692,6 +700,141 @@
 
     .toast.visible { transform: translateX(-50%) translateY(0); }
 
+    /* ── CHECKOUT MODAL ── */
+    .checkout-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 300;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s;
+    }
+    .checkout-overlay.visible { opacity: 1; pointer-events: all; }
+    .checkout-modal {
+      background: var(--blanco);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 460px;
+      max-height: 90vh;
+      overflow-y: auto;
+      transform: scale(0.95) translateY(10px);
+      transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+    .checkout-overlay.visible .checkout-modal { transform: scale(1) translateY(0); }
+    .checkout-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--crema-oscuro);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .checkout-header h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      color: var(--verde);
+    }
+    .checkout-cerrar {
+      background: none;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      color: var(--texto-suave);
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: background 0.2s;
+    }
+    .checkout-cerrar:hover { background: var(--crema-oscuro); }
+    .checkout-resumen {
+      padding: 16px 24px;
+      background: var(--crema);
+      border-bottom: 1px solid var(--crema-oscuro);
+    }
+    .checkout-resumen-titulo {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--texto-suave);
+      margin-bottom: 10px;
+    }
+    .checkout-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13.5px;
+      padding: 4px 0;
+    }
+    .checkout-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--crema-oscuro);
+    }
+    .checkout-total-label { font-size: 13px; color: var(--texto-suave); }
+    .checkout-total-valor {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--verde);
+    }
+    .checkout-form { padding: 20px 24px; }
+    .checkout-field { margin-bottom: 14px; }
+    .checkout-field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--texto-suave);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .checkout-field input,
+    .checkout-field textarea {
+      width: 100%;
+      padding: 10px 13px;
+      border: 1.5px solid var(--crema-oscuro);
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      outline: none;
+      background: var(--blanco);
+      transition: border-color 0.2s;
+    }
+    .checkout-field input:focus,
+    .checkout-field textarea:focus { border-color: var(--verde); }
+    .checkout-field textarea { resize: none; height: 72px; }
+    .checkout-enviar {
+      width: 100%;
+      background: #25d366;
+      color: var(--blanco);
+      border: none;
+      border-radius: 12px;
+      padding: 15px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: background 0.2s;
+      margin-top: 6px;
+    }
+    .checkout-enviar:hover { background: #1fb855; }
+    .checkout-enviar svg { width: 20px; height: 20px; }
+
     /* ── CARRUSEL ── */
     .carrusel-wrap {
       position: relative;
@@ -960,10 +1103,42 @@
 
     .pm-wrap { position: relative; }
 
+    /* ── BÚSQUEDA MOBILE ── */
+    .mobile-search {
+      display: none;
+      padding: 10px 14px 8px;
+      background: var(--blanco);
+      border-bottom: 1px solid var(--crema-oscuro);
+      position: sticky;
+      top: 104px;
+      z-index: 89;
+    }
+    .mobile-search-inner { position: relative; }
+    .mobile-search input {
+      width: 100%;
+      padding: 9px 14px 9px 36px;
+      border: 1.5px solid var(--crema-oscuro);
+      border-radius: 30px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      outline: none;
+      background: var(--crema);
+    }
+    .mobile-search input:focus { border-color: var(--verde); }
+    .mobile-search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--texto-suave);
+      pointer-events: none;
+    }
+
     /* ── RESPONSIVE ── */
     @media (max-width: 600px) {
       .header-inner { padding: 0 16px; height: 60px; }
       .header-search { display: none; }
+      .mobile-search { display: block; }
       .banner { padding: 32px 16px; }
       main { padding: 24px 16px 80px; }
       .productos-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
@@ -1012,8 +1187,18 @@
     </div>
   </div>
 
+  <!-- BÚSQUEDA MOBILE -->
+  <div class="mobile-search">
+    <div class="mobile-search-inner">
+      <svg class="mobile-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input type="text" id="buscadorMobile" placeholder="Buscar productos…" autocomplete="off" />
+    </div>
+  </div>
+
   <!-- CARRUSEL -->
-  <div class="carrusel-wrap" id="carruselWrap">
+  <div class="carrusel-wrap" id="carruselWrap" style="display:none">
     <div class="carrusel-track" id="carruselTrack"></div>
     <button class="carrusel-btn-nav carrusel-prev" id="carruselPrev">‹</button>
     <button class="carrusel-btn-nav carrusel-next" id="carruselNext">›</button>
@@ -1021,7 +1206,7 @@
   </div>
 
   <!-- BANNER ESTÁTICO (fallback si no hay banners) -->
-  <div class="banner" id="bannerFallback" style="display:none">
+  <div class="banner" id="bannerFallback">
     <div class="banner-content">
       <h1>Lo mejor de la naturaleza</h1>
       <p>Productos naturales seleccionados para tu bienestar y el de tu familia. Calidad y confianza en cada compra.</p>
@@ -1072,6 +1257,41 @@
   <!-- TOAST -->
   <div class="toast" id="toast"></div>
 
+  <!-- CHECKOUT MODAL -->
+  <div class="checkout-overlay" id="checkoutOverlay">
+    <div class="checkout-modal">
+      <div class="checkout-header">
+        <h2>Confirmar pedido</h2>
+        <button class="checkout-cerrar" id="checkoutCerrar">✕</button>
+      </div>
+      <div class="checkout-resumen" id="checkoutResumen"></div>
+      <div class="checkout-form">
+        <div class="checkout-field">
+          <label>Tu nombre *</label>
+          <input type="text" id="checkoutNombre" placeholder="Ej: María García" autocomplete="name" />
+        </div>
+        <div class="checkout-field">
+          <label>Tu teléfono *</label>
+          <input type="tel" id="checkoutTelefono" placeholder="Ej: 1123456789" autocomplete="tel" />
+        </div>
+        <div class="checkout-field">
+          <label>Dirección de entrega *</label>
+          <input type="text" id="checkoutDireccion" placeholder="Ej: Av. Corrientes 1234, CABA" autocomplete="street-address" />
+        </div>
+        <div class="checkout-field">
+          <label>Notas (opcional)</label>
+          <textarea id="checkoutNotas" placeholder="Ej: Entregar en el turno tarde, piso 3…"></textarea>
+        </div>
+        <button class="checkout-enviar" id="checkoutEnviar">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+          </svg>
+          Enviar pedido por WhatsApp
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL PRODUCTO -->
   <div class="producto-overlay" id="productoOverlay">
     <div class="producto-modal">
@@ -1110,7 +1330,7 @@
 
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-    import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+    import { getFirestore, collection, getDocs, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
     const firebaseConfig = {
       apiKey: "AIzaSyClKPY6RlksLHmZlNP0brfTzB6JPhbXTts",
@@ -1380,13 +1600,64 @@
       });
     }
 
-    // ── WhatsApp ──
-    document.getElementById('pedirWsp').addEventListener('click', () => {
+    // ── Checkout ──
+    function abrirCheckout() {
       if (!carrito.length) { mostrarToast('El carrito está vacío'); return; }
       const total = carrito.reduce((s, c) => s + c.precio * c.cantidad, 0);
+      document.getElementById('checkoutResumen').innerHTML = `
+        <div class="checkout-resumen-titulo">Resumen del pedido</div>
+        ${carrito.map(c => `
+          <div class="checkout-item">
+            <span>${c.nombre} x${c.cantidad}</span>
+            <span>$${(c.precio * c.cantidad).toLocaleString('es-AR')}</span>
+          </div>`).join('')}
+        <div class="checkout-total">
+          <span class="checkout-total-label">Total</span>
+          <span class="checkout-total-valor">$${total.toLocaleString('es-AR')}</span>
+        </div>`;
+      document.getElementById('checkoutNombre').value = '';
+      document.getElementById('checkoutTelefono').value = '';
+      document.getElementById('checkoutDireccion').value = '';
+      document.getElementById('checkoutNotas').value = '';
+      document.getElementById('checkoutOverlay').classList.add('visible');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function cerrarCheckout() {
+      document.getElementById('checkoutOverlay').classList.remove('visible');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('pedirWsp').addEventListener('click', abrirCheckout);
+    document.getElementById('checkoutCerrar').addEventListener('click', cerrarCheckout);
+    document.getElementById('checkoutOverlay').addEventListener('click', e => {
+      if (e.target === document.getElementById('checkoutOverlay')) cerrarCheckout();
+    });
+
+    document.getElementById('checkoutEnviar').addEventListener('click', async () => {
+      const nombre = document.getElementById('checkoutNombre').value.trim();
+      const telefono = document.getElementById('checkoutTelefono').value.trim();
+      const direccion = document.getElementById('checkoutDireccion').value.trim();
+      const notas = document.getElementById('checkoutNotas').value.trim();
+      if (!nombre || !telefono || !direccion) { mostrarToast('Completá nombre, teléfono y dirección'); return; }
+      const total = carrito.reduce((s, c) => s + c.precio * c.cantidad, 0);
+      try {
+        await addDoc(collection(db, 'pedidos'), {
+          nombre, telefono, direccion, notas,
+          items: carrito.map(c => ({ nombre: c.nombre, cantidad: c.cantidad, precio: c.precio })),
+          total, estado: 'nuevo', createdAt: serverTimestamp()
+        });
+      } catch(e) { console.error('Error guardando pedido:', e); }
       const detalle = carrito.map(c => `• ${c.nombre} x${c.cantidad} — $${(c.precio * c.cantidad).toLocaleString('es-AR')}`).join('\n');
-      const msg = `¡Hola! Quiero hacer el siguiente pedido:\n\n${detalle}\n\n*Total: $${total.toLocaleString('es-AR')}*`;
+      let msg = `¡Hola! Quiero hacer el siguiente pedido:\n\n${detalle}\n\n*Total: $${total.toLocaleString('es-AR')}*\n\n👤 *Nombre:* ${nombre}\n📍 *Dirección:* ${direccion}`;
+      if (notas) msg += `\n📝 *Notas:* ${notas}`;
       window.open(`https://wa.me/${WSP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
+      carrito = [];
+      guardarCarrito();
+      renderCarrito();
+      renderProductos();
+      cerrarCheckout();
+      mostrarToast('¡Pedido enviado! 🌿');
     });
 
     // ── Abrir / cerrar carrito ──
@@ -1408,6 +1679,11 @@
 
     // ── Búsqueda ──
     document.getElementById('buscador').addEventListener('input', e => {
+      busqueda = e.target.value.toLowerCase().trim();
+      renderProductos();
+    });
+
+    document.getElementById('buscadorMobile').addEventListener('input', e => {
       busqueda = e.target.value.toLowerCase().trim();
       renderProductos();
     });
@@ -1447,6 +1723,8 @@
     }
 
     function renderCarrusel() {
+      document.getElementById('carruselWrap').style.display = 'block';
+      document.getElementById('bannerFallback').style.display = 'none';
       const track = document.getElementById('carruselTrack');
       const dots = document.getElementById('carruselDots');
 
